@@ -1,0 +1,48 @@
+@use "@angular/material" as mat;
+@include mat.core();
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+// Define a dark theme
+$dark-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: mat.define-palette(mat.$pink-palette),
+      accent: mat.define-palette(mat.$blue-grey-palette),
+    ),
+    // Only include `typography` and `density` in the default dark theme.
+    typography: mat.define-typography-config(),
+    density: 0,
+  )
+);
+
+// Define a light theme
+$light-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: mat.define-palette(mat.$indigo-palette),
+      accent: mat.define-palette(mat.$pink-palette),
+    ),
+  )
+);
+
+// Apply the dark theme by default
+  @include mat.core-color($dark-theme);
+  @include mat.button-color($dark-theme);
+  @include mat.icon-color($dark-theme);
+  @include mat.list-color($dark-theme);
+  @include mat.sidenav-color($dark-theme);
+  @include mat.toolbar-color($dark-theme);
+  @include mat.card-color($dark-theme);
+
+// Apply the light theme only when the user prefers light themes.
+@media (prefers-color-scheme: light) {
+  // Use the `-color` mixins to only apply color styles without reapplying the same
+  // typography and density styles.
+  @include mat.core-color($light-theme);
+  @include mat.button-color($light-theme);
+  @include mat.icon-color($light-theme);
+  @include mat.list-color($light-theme);
+  @include mat.sidenav-color($light-theme);
+  @include mat.toolbar-color($light-theme);
+  @include mat.card-color($light-theme);
+}

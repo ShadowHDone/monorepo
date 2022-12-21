@@ -7,9 +7,15 @@ import { PageNotFoundComponent } from './components/';
 import { WebviewDirective } from './directives/';
 import { FormsModule } from '@angular/forms';
 
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+
+const MATERIAL = [MatIconModule, MatToolbarModule, MatButtonModule];
+
 @NgModule({
   declarations: [PageNotFoundComponent, WebviewDirective],
-  imports: [CommonModule, TranslateModule, FormsModule],
-  exports: [TranslateModule, WebviewDirective, FormsModule]
+  imports: [CommonModule, TranslateModule, FormsModule, ...MATERIAL],
+  exports: [TranslateModule, WebviewDirective, FormsModule, ...MATERIAL],
 })
 export class SharedModule {}
