@@ -10,7 +10,7 @@
     "postinstall": "electron-builder install-app-deps",
     "ng": "ng",
     "start": "npm-run-all -p electron:serve ng:serve",
-    "ng:serve": "ng serve -c web -o",
+    "ng:serve": "ng serve -c web",
     "build": "npm run electron:serve-tsc && ng build --base-href ./",
     "build:dev": "npm run build -- -c dev",
     "build:prod": "npm run build -- -c production",
@@ -41,7 +41,7 @@
     "zone.js": "~0.11.8"
   },
   "devDependencies": {
-    "@angular-builders/custom-webpack": "14.0.1",
+    "@angular-builders/custom-webpack": "15.0.0",
     "@angular-devkit/build-angular": "15.0.4",
     "@angular-eslint/builder": "15.0.0-alpha.5",
     "@angular-eslint/eslint-plugin": "15.0.0-alpha.5",
