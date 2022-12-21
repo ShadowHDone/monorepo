@@ -1,8 +1,8 @@
 {
-  "name": "AnimeStat",
+  "name": "ani-stat",
   "version": "0.1.0",
   "description": "Simple app just to analyze some statistic about anime",
-  "homepage": "https://github.com/ShadowHDone/monorepo/tree/main/anime-stat",
+  "homepage": "https://github.com/ShadowHDone/monorepo/tree/main/ani-stat",
   "author": "ShadowHD",
   "main": "app/main.js",
   "private": true,
