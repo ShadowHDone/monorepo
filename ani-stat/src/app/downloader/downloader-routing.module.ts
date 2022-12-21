@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
-import { DetailComponent } from './detail.component';
+import { DownloaderComponent } from './downloader.component';
 
 const routes: Routes = [
   {
-    path: 'detail',
-    component: DetailComponent
-  }
+    path: 'downloader',
+    component: DownloaderComponent,
+  },
 ];
 
 @NgModule({

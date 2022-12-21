@@ -1,0 +1,14 @@
+{
+  "PAGES": {
+    "HOME": {
+      "TITLE": "AniStat app",
+      "GO_TO_DOWNLOADER": "Go to Downloader"
+    },
+    "DOWNLOADER": {
+      "TITLE": "Downloader"
+    }
+  },
+  "HEADER": {
+    "TITLE": "AniStat"
+  }
+}

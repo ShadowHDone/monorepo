@@ -6,6 +6,5 @@
   "author": "ShadowHD",
   "main": "main.js",
   "private": true,
-  "dependencies": {
-  }
+  "dependencies": {}
 }
