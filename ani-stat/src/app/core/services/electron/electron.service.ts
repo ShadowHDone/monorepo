@@ -5,11 +5,13 @@ import { Injectable } from '@angular/core';
 import { ipcRenderer, webFrame } from 'electron';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
+import { Observable, Subject, from } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ElectronService {
+  private noElectronError = new Error('There is no Electron');
   ipcRenderer: typeof ipcRenderer;
   webFrame: typeof webFrame;
   childProcess: typeof childProcess;
@@ -48,6 +50,32 @@ export class ElectronService {
       // ipcRenderer.invoke can serve many common use cases.
       // https://www.electronjs.org/docs/latest/api/ipc-renderer#ipcrendererinvokechannel-args
     }
+  }
+
+  get currentDirectory(): Observable<string> {
+    if (!this.isElectron) throw this.noElectronError;
+    return from(this.ipcRenderer.invoke('get-patch'));
+  }
+
+  get currentDirectoryList(): Observable<string[]> {
+    const subject = new Subject<string[]>();
+    if (!this.isElectron) {
+      subject.error(this.noElectronError);
+      return subject;
+    }
+    this.currentDirectory.subscribe((path) => {
+      console.log('path');
+
+      this.fs.readdir(path, function (err, files) {
+        if (err) {
+          subject.error(err);
+        }
+        console.log(files);
+
+        subject.next(files);
+      });
+    });
+    return subject;
   }
 
   get isElectron(): boolean {

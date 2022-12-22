@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ElectronService } from '../core/services';
 
 @Component({
   selector: 'app-downloader',
@@ -6,8 +7,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./downloader.component.scss'],
 })
 export class DownloaderComponent implements OnInit {
-  constructor() {}
+  fileList$ = this.electronService.currentDirectoryList;
+  curDir$ = this.electronService.currentDirectory;
 
-  ngOnInit(): void {
-  }
+  constructor(private electronService: ElectronService) {}
+
+  ngOnInit(): void {}
 }

@@ -55,6 +55,7 @@
     "@angular-eslint/template-parser": "15.0.0-alpha.5",
     "@angular/cli": "15.0.4",
     "@angular/compiler-cli": "15.0.4",
+    "@electron/remote": "2.0.9",
     "@ngx-translate/core": "14.0.0",
     "@ngx-translate/http-loader": "7.0.0",
     "@playwright/test": "1.27.1",

@@ -1,3 +1,7 @@
 <h1>
   {{ "PAGES.DOWNLOADER.TITLE" | translate }}
 </h1>
+{{ curDir$ | async }}
+<ol *ngIf="true">
+  <li *ngFor="let file of fileList$ | async">{{ file }}</li>
+</ol>

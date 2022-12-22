@@ -6,6 +6,25 @@ const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
  */
 module.exports = (config, options) => {
     config.target = 'electron-renderer';
+    config.externals = {
+          electron: 'commonjs electron',
+          ipc: 'commonjs ipc',
+          'ipc-renderer': 'commonjs ipc-renderer',
+          remote: 'commonjs remote',
+          fs: 'commonjs fs',
+          assert: 'commonjs assert',
+          crypto: 'commonjs crypto',
+          fs: 'commonjs fs',
+          http: 'commonjs http',
+          https: 'commonjs https',
+          os: 'commonjs os',
+          path: 'commonjs path',
+          readline: 'commonjs readline',
+          stream: 'commonjs stream',
+          timers: 'commonjs timers',
+          util: 'commonjs util',
+          constants: 'commonjs constants',
+        };
 
     if (options.fileReplacements) {
         for(let fileReplacement of options.fileReplacements) {
@@ -24,7 +43,7 @@ module.exports = (config, options) => {
     config.plugins = [
         ...config.plugins,
         new NodePolyfillPlugin({
-			  excludeAliases: ["console"]
+			  excludeAliases: ["console"],
 		})
     ];
 

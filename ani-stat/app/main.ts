@@ -1,4 +1,4 @@
-import {app, BrowserWindow, screen} from 'electron';
+import { app, BrowserWindow, screen, ipcMain, IpcMainInvokeEvent } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -81,3 +81,7 @@ try {
   // Catch Error
   // throw e;
 }
+
+ipcMain.handle('get-patch',async (event:IpcMainInvokeEvent) => {
+  return __dirname;
+});

@@ -5,6 +5,5 @@
   "homepage": "https://github.com/ShadowHDone/monorepo/tree/main/ani-stat",
   "author": "ShadowHD",
   "main": "main.js",
-  "private": true,
-  "dependencies": {}
+  "private": true
 }
