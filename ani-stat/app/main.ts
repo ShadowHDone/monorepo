@@ -82,6 +82,6 @@ try {
   // throw e;
 }
 
-ipcMain.handle('get-patch',async (event:IpcMainInvokeEvent) => {
+ipcMain.handle('get-patch',async () => {
   return __dirname;
 });
