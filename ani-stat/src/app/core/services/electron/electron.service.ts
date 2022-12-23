@@ -5,13 +5,22 @@ import { Injectable } from '@angular/core';
 import { ipcRenderer, webFrame } from 'electron';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
-import { Observable, Subject, from } from 'rxjs';
+import * as util from 'util';
+import {
+  Observable,
+  Subject,
+  from,
+  map,
+  throwError,
+  mergeMap,
+} from 'rxjs';
+
+const ERROR_NO_ELECTRON = new Error('There is no Electron');
 
 @Injectable({
   providedIn: 'root',
 })
 export class ElectronService {
-  private noElectronError = new Error('There is no Electron');
   ipcRenderer: typeof ipcRenderer;
   webFrame: typeof webFrame;
   childProcess: typeof childProcess;
@@ -52,33 +61,25 @@ export class ElectronService {
     }
   }
 
-  get currentDirectory(): Observable<string> {
-    if (!this.isElectron) throw this.noElectronError;
-    return from(this.ipcRenderer.invoke('get-patch'));
-  }
-
-  get currentDirectoryList(): Observable<string[]> {
-    const subject = new Subject<string[]>();
-    if (!this.isElectron) {
-      subject.error(this.noElectronError);
-      return subject;
-    }
-    this.currentDirectory.subscribe((path) => {
-      console.log('path');
-
-      this.fs.readdir(path, function (err, files) {
-        if (err) {
-          subject.error(err);
-        }
-        console.log(files);
-
-        subject.next(files);
-      });
-    });
-    return subject;
-  }
-
   get isElectron(): boolean {
     return !!(window && window.process && window.process.type);
+  }
+
+  currentDirectory(): Observable<string> {
+    if (!this.isElectron) return throwError(() => ERROR_NO_ELECTRON);
+    return from<Promise<string>>(this.ipcRenderer.invoke('get-patch'));
+  }
+
+  currentDirectoryList(): Observable<string[]> {
+    if (!this.isElectron) {
+      const subject = new Subject<string[]>();
+      subject.error(ERROR_NO_ELECTRON);
+      return subject;
+    }
+    const readdir = util.promisify(fs.readdir);
+    return this.currentDirectory().pipe(
+      mergeMap((path) => from(readdir(path, { withFileTypes: true }))),
+      map((value) => value.map((dirent) => dirent.name)),
+    );
   }
 }

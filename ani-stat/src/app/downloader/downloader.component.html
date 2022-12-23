@@ -1,7 +1,7 @@
 <h1>
   {{ "PAGES.DOWNLOADER.TITLE" | translate }}
 </h1>
-{{ curDir$ | async }}
+{{ curDir$ | async }} ({{ (fileList$ | async)?.length }})
 <ol *ngIf="true">
-  <li *ngFor="let file of fileList$ | async">{{ file }}</li>
+  <li *ngFor="let file of (fileList$ | async)">{{ curDir$ | async }}{{ file }}</li>
 </ol>
