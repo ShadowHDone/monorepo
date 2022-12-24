@@ -13,12 +13,12 @@ import { ElectronService } from '../core/services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DownloaderComponent implements OnInit {
-  fileList$ = this.electronService.currentDirectoryList().pipe(
-    catchError((error: Error) => of([error.message])),
-  );
-  curDir$ = this.electronService.currentDirectory().pipe(
-    catchError((error: Error) => of(error.message)),
-  );
+  fileList$ = this.electronService
+    .currentDirectoryList()
+    .pipe(catchError((error: Error) => of([error.message])));
+  curDir$ = this.electronService
+    .currentDirectory()
+    .pipe(catchError((error: Error) => of(error.message)));
 
   constructor(private electronService: ElectronService) {}
 

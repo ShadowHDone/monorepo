@@ -6,14 +6,7 @@ import { ipcRenderer, webFrame } from 'electron';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as util from 'util';
-import {
-  Observable,
-  Subject,
-  from,
-  map,
-  throwError,
-  mergeMap,
-} from 'rxjs';
+import { Observable, Subject, from, map, throwError, mergeMap } from 'rxjs';
 
 const ERROR_NO_ELECTRON = new Error('There is no Electron');
 
@@ -79,7 +72,11 @@ export class ElectronService {
     const readdir = util.promisify(fs.readdir);
     return this.currentDirectory().pipe(
       mergeMap((path) => from(readdir(path, { withFileTypes: true }))),
-      map((value) => value.map((dirent) => dirent.name)),
+      map((value) => value.map((dirent) => dirent.name))
     );
+  }
+
+  shikiTest(): Observable<string> {
+    return from(this.ipcRenderer.invoke('shiki-test'));
   }
 }
