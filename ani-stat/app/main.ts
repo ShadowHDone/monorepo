@@ -1,8 +1,9 @@
 import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
-import { Shikimori } from 'node-shikimori';
+import { Core } from './core';
 
+const core = new Core();
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === '--serve');
@@ -64,6 +65,7 @@ try {
   app.on('window-all-closed', () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
+    core.saveAppConfig();
     if (process.platform !== 'darwin') {
       app.quit();
     }
@@ -83,4 +85,8 @@ try {
 
 ipcMain.handle('get-patch', async () => {
   return __dirname;
+});
+
+ipcMain.handle('shiki-test', async () => {
+  return core.connectShikimori();
 });

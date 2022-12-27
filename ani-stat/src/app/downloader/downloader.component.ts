@@ -1,9 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { catchError, of } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { ElectronService } from '../core/services';
 
 @Component({
@@ -23,4 +20,13 @@ export class DownloaderComponent implements OnInit {
   constructor(private electronService: ElectronService) {}
 
   ngOnInit(): void {}
+
+  shikiTest(): void {
+    this.electronService
+      .shikiTest()
+      .pipe(take(1))
+      .subscribe((data) => {
+        console.log('shiki-test', data);
+      });
+  }
 }

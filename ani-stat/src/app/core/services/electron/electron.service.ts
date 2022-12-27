@@ -7,8 +7,8 @@ import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as util from 'util';
 import { Observable, Subject, from, map, throwError, mergeMap } from 'rxjs';
-
-const ERROR_NO_ELECTRON = new Error('There is no Electron');
+import { tap } from 'rxjs/operators';
+import { ERROR_NO_ELECTRON } from './consts';
 
 @Injectable({
   providedIn: 'root',
@@ -59,7 +59,9 @@ export class ElectronService {
   }
 
   currentDirectory(): Observable<string> {
-    if (!this.isElectron) return throwError(() => ERROR_NO_ELECTRON);
+    if (!this.isElectron) {
+      return throwError(() => ERROR_NO_ELECTRON);
+    }
     return from<Promise<string>>(this.ipcRenderer.invoke('get-patch'));
   }
 
@@ -76,7 +78,11 @@ export class ElectronService {
     );
   }
 
-  shikiTest(): Observable<string> {
-    return from(this.ipcRenderer.invoke('shiki-test'));
+  shikiTest(): Observable<any> {
+    return from(this.ipcRenderer.invoke('shiki-test')).pipe(
+      tap((data) => {
+        console.log('shiki-test', data);
+      })
+    );
   }
 }

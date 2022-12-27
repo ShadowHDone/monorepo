@@ -3,5 +3,8 @@
 </h1>
 {{ curDir$ | async }} ({{ (fileList$ | async)?.length }})
 <ol *ngIf="true">
-  <li *ngFor="let file of (fileList$ | async)">{{ curDir$ | async }}{{ file }}</li>
+  <li *ngFor="let file of fileList$ | async">
+    {{ file }}
+  </li>
 </ol>
+<button mat-raised-button (click)="shikiTest()">shiki test</button>
