@@ -28,7 +28,9 @@ function createWindow(): BrowserWindow {
     const debug = require('electron-debug');
     debug();
 
-    require('electron-reloader')(module);
+    require('electron-reloader')(module, {
+      ignore: ['.'],
+    });
     win.loadURL('http://localhost:4200');
   } else {
     // Path when running electron executable
@@ -88,5 +90,16 @@ ipcMain.handle('get-patch', async () => {
 });
 
 ipcMain.handle('shiki-test', async () => {
-  return core.connectShikimori();
+  // const result = await core.test();
+  const result = await core.connectShikimori();
+  return { ...result };
+});
+
+ipcMain.handle('shiki-get-anime-list', async () => {
+  // const result = await core.test();
+  return await core.getAnimeList().toPromise();
+});
+
+ipcMain.on('shiki-reload', async () => {
+  await core.connectShikimori();
 });
