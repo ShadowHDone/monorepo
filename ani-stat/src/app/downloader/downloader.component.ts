@@ -22,11 +22,12 @@ export class DownloaderComponent implements OnInit {
   ngOnInit(): void {}
 
   shikiTest(): void {
+    // this.electronService.shikiReload();
     this.electronService
-      .shikiTest()
+      .shikiGetAnimeLsit()
       .pipe(take(1))
       .subscribe((data) => {
-        console.log('shiki-test', data);
+        console.log('shiki-get-anime-list', data);
       });
   }
 }
