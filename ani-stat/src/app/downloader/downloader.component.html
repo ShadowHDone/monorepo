@@ -1,10 +1,11 @@
 <h1>
   {{ "PAGES.DOWNLOADER.TITLE" | translate }}
 </h1>
-{{ curDir$ | async }} ({{ (fileList$ | async)?.length }})
-<ol *ngIf="true">
-  <li *ngFor="let file of fileList$ | async">
-    {{ file }}
+Шпишок анимы ({{ (animeList$ | async)?.length }})
+<ol *ngIf="(animeList$ | async)?.length">
+  <li *ngFor="let anime of animeList$ | async">
+    <img [src]="'https://shikimori.one' + anime.image.preview" />
+    {{ anime.name }}
   </li>
 </ol>
-<button mat-raised-button (click)="shikiTest()">shiki test</button>
+<button mat-raised-button (click)="updateAnimeList()">Update anime list</button>

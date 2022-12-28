@@ -9,7 +9,7 @@ import * as util from 'util';
 import { Observable, Subject, from, map, throwError, mergeMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ERROR_NO_ELECTRON } from './consts';
-import { Credentials } from '../../../../../app/interfaces';
+import { Anime } from '../../../../../app/interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -79,9 +79,9 @@ export class ElectronService {
     );
   }
 
-  shikiGetAnimeLsit(): Observable<Credentials> {
+  shikiGetAnimeLsit(): Observable<Anime[]> {
     return from(
-      this.ipcRenderer.invoke('shiki-get-anime-list') as Promise<Credentials>
+      this.ipcRenderer.invoke('shiki-get-anime-list') as Promise<Anime[]>
     ).pipe(
       tap((data) => {
         console.log('shiki-get-anime-list', data);

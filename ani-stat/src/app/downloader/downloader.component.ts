@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { catchError, of } from 'rxjs';
+import { BehaviorSubject, catchError, of } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { Anime } from '../../../app/interfaces';
 import { ElectronService } from '../core/services';
 
 @Component({
@@ -17,17 +18,18 @@ export class DownloaderComponent implements OnInit {
     .currentDirectory()
     .pipe(catchError((error: Error) => of(error.message)));
 
+  animeList$ = new BehaviorSubject<Anime[]>([]);
+
   constructor(private electronService: ElectronService) {}
 
   ngOnInit(): void {}
 
-  shikiTest(): void {
-    // this.electronService.shikiReload();
+  updateAnimeList(): void {
     this.electronService
       .shikiGetAnimeLsit()
       .pipe(take(1))
-      .subscribe((data) => {
-        console.log('shiki-get-anime-list', data);
+      .subscribe((animeList) => {
+        this.animeList$.next(animeList);
       });
   }
 }
