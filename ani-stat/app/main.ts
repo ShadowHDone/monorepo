@@ -67,7 +67,6 @@ try {
   app.on('window-all-closed', () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    core.saveAppConfig();
     if (process.platform !== 'darwin') {
       app.quit();
     }
@@ -89,17 +88,7 @@ ipcMain.handle('get-patch', async () => {
   return __dirname;
 });
 
-ipcMain.handle('shiki-test', async () => {
-  // const result = await core.test();
-  const result = await core.connectShikimori();
-  return { ...result };
-});
-
 ipcMain.handle('shiki-get-anime-list', async () => {
   // const result = await core.test();
   return await core.getAnimeList().toPromise();
-});
-
-ipcMain.on('shiki-reload', async () => {
-  await core.connectShikimori();
 });

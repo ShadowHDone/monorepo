@@ -1,4 +1,5 @@
 import * as Shikimori from 'shikimori-api-node';
+import * as nock from 'nock';
 import * as fs from 'fs/promises';
 // import * as fs from 'fs';
 import {
@@ -12,26 +13,40 @@ import {
 import { Anime, AppConfig, Credentials } from './interfaces';
 import { Observable, from, tap, catchError, retry, of, switchMap } from 'rxjs';
 import { map } from 'rxjs/internal/operators/map';
-import { throwError } from 'rxjs/internal/observable/throwError';
+import { Mock } from './mock';
 
 export class Core {
   shiki: typeof Shikimori = new Shikimori();
+  mock: Mock;
 
   /**
    * @deprecated will be change to storage
    */
-  private _appConfig: AppConfig;
+  private _appConfig: AppConfig = { login: {} };
 
   setAppConfig(config: AppConfig) {
     //todo make recursively
     this._appConfig = { ...this._appConfig, ...config };
   }
 
+  constructor() {
+    if (process.env.MOCK) {
+      console.info('Mock mode is enabled');
+      this.mock = new Mock();
+    }
+  }
+
+  /**
+   * @deprecated will be change to storage
+   */
   async getAppConfig(): Promise<AppConfig> {
     if (!this._appConfig) this.setAppConfig(await this.readAppConfig());
     return this._appConfig;
   }
 
+  /**
+   * @deprecated will be change to storage
+   */
   async connectShikimori(): Promise<Credentials> {
     this.shiki = new Shikimori();
     const config = await this.getAppConfig();
@@ -92,7 +107,8 @@ export class Core {
   }
 
   private reAuth(error): Observable<Credentials> {
-    console.error("Couldn't get message from server", error);
+    // TODO make more error handlers
+    console.warn("Couldn't get message from server", error);
     if (!this.shiki) {
       this.shiki = new Shikimori();
     }
@@ -121,11 +137,11 @@ export class Core {
       switchMap((credentials) => {
         const { accesstoken, refreshtoken } = credentials;
         if (accesstoken && refreshtoken) {
-          console.log('Refreshing token');
+          console.info('Refreshing token');
           this.shiki.auth.credentials = credentials;
           return from(this.shiki.auth.refreshToken() as Promise<Credentials>);
         }
-        console.log('Updating auth data');
+        console.info('Updating auth data');
         return from(
           this.shiki.auth.login({ ...credentials }) as Promise<Credentials>
         );
