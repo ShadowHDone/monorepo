@@ -26,7 +26,7 @@ export class DownloaderComponent implements OnInit {
 
   updateAnimeList(): void {
     this.electronService
-      .shikiGetAnimeLsit()
+      .getAnimeList()
       .pipe(take(1))
       .subscribe((animeList) => {
         this.animeList$.next(animeList);

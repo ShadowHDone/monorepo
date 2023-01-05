@@ -2,6 +2,18 @@
 [![Make a pull request][prs-badge]][prs]
 [![License][license-badge]](LICENSE.md)
 
+# TODO
+
+[ ] FIX COMMITS
+[x] Implement whoami method https://shikimori.one/api/users/whoami
+[x] Implement authentication (getting auth code for user)
+[√] Use RxJS in all requests
+[√] Add mocks
+[√] Add store
+[ ] Add sqlite
+[ ] Make separate file for ipcMain handlers
+[ ] App isn't terminated when all windows are closed
+
 # About
 
 Simple app just to analyze some statistic about anime.

@@ -1,6 +1,6 @@
 import * as Shikimori from 'shikimori-api-node';
-import * as nock from 'nock';
-import * as fs from 'fs/promises';
+import * as Store from 'electron-store';
+import * as fs from 'fs';
 // import * as fs from 'fs';
 import {
   CONFIG_FILE_NAME,
@@ -10,84 +10,39 @@ import {
   ERROR_NO_REDIRECTURI,
   ERROR_NO_USERAGENT,
 } from './consts';
-import { Anime, AppConfig, Credentials } from './interfaces';
+import { Anime, AppConfig, UserBrief, UserConfig } from './interfaces';
 import { Observable, from, tap, catchError, retry, of, switchMap } from 'rxjs';
 import { map } from 'rxjs/internal/operators/map';
 import { Mock } from './mock';
+import { throwError } from 'rxjs/internal/observable/throwError';
 
 export class Core {
   shiki: typeof Shikimori = new Shikimori();
   mock: Mock;
 
-  /**
-   * @deprecated will be change to storage
-   */
-  private _appConfig: AppConfig = { login: {} };
+  private _appConfig: AppConfig;
 
-  setAppConfig(config: AppConfig) {
-    //todo make recursively
-    this._appConfig = { ...this._appConfig, ...config };
+  /**
+   * @todo may be make as consts
+   */
+  get appConfig(): AppConfig {
+    if (!this._appConfig) {
+      this._appConfig = this.readAppConfig();
+    }
+    return this._appConfig;
   }
 
-  constructor() {
+  constructor(private userConfigStore: Store<UserConfig>) {
     if (process.env.MOCK) {
       console.info('Mock mode is enabled');
       this.mock = new Mock();
     }
+
+    console.log(this.userConfigStore.store);
   }
 
-  /**
-   * @deprecated will be change to storage
-   */
-  async getAppConfig(): Promise<AppConfig> {
-    if (!this._appConfig) this.setAppConfig(await this.readAppConfig());
-    return this._appConfig;
-  }
-
-  /**
-   * @deprecated will be change to storage
-   */
-  async connectShikimori(): Promise<Credentials> {
-    this.shiki = new Shikimori();
-    const config = await this.getAppConfig();
-    this.shiki.auth.credentials = {
-      ...config.login,
-    };
-    let auth: Credentials;
-    if (config?.login?.refreshtoken) {
-      console.log('Refresh token');
-
-      // auth = await this.shiki.auth.refreshToken();
-      auth = await new Promise((resolve) => {
-        resolve({ ...config.login });
-      });
-    }
-    if (!auth.accesstoken) {
-      console.log('Reauth');
-      // auth = await this.shiki.auth.login({ ...config.login });
-      auth = await new Promise((resolve) => {
-        resolve({ ...config.login });
-      });
-    }
-    config.login = auth;
-    this.setAppConfig(config);
-    await this.saveAppConfig();
-    return auth;
-  }
-
-  async saveAppConfig(): Promise<void> {
-    await fs.writeFile(
-      `${__dirname}/${CONFIG_FILE_NAME}`,
-      JSON.stringify(this._appConfig)
-    );
-  }
-
-  async test(): Promise<Credentials> {
-    return await { accesstoken: 'asdfasdf' };
-  }
-
-  private async readAppConfig(): Promise<AppConfig> {
-    const raw = await fs.readFile(`${__dirname}/${CONFIG_FILE_NAME}`, {
+  private readAppConfig(): AppConfig {
+    const raw = fs.readFileSync(`${__dirname}/${CONFIG_FILE_NAME}`, {
       encoding: 'utf8',
     });
     return raw ? JSON.parse(raw) : {};
@@ -106,13 +61,37 @@ export class Core {
     );
   }
 
-  private reAuth(error): Observable<Credentials> {
-    // TODO make more error handlers
+  getWhoAmI(): Observable<UserBrief> {
+    return from(this.shiki.api.users.whoami() as Promise<UserBrief>).pipe(
+      switchMap((data) => {
+        if (!data) {
+          return throwError(() => new Error('No data'));
+        }
+        return of(data);
+      }),
+      retry({ count: 1, delay: (error) => this.reAuth(error) }),
+      tap((data) => {
+        console.log('getWhoAmI', data);
+      }),
+      catchError((error) => {
+        console.error(error);
+        return [];
+      })
+    );
+  }
+
+  /**
+   * @todo move to static helper
+   * @todo make separate error handlers
+   * @param error
+   * @returns
+   */
+  private reAuth(error): Observable<unknown> {
     console.warn("Couldn't get message from server", error);
     if (!this.shiki) {
       this.shiki = new Shikimori();
     }
-    return of(this.shiki.auth.credentials as Credentials).pipe(
+    return of(this.shiki.auth.credentials).pipe(
       switchMap((credentials = {}) => {
         const { clientid, clientsecret, authcode, useragent, redirecturi } =
           credentials;
@@ -120,8 +99,8 @@ export class Core {
           return of(credentials);
         }
         // todo make appconfig as Subject
-        return from(this.readAppConfig()).pipe(
-          map((config) => ({ ...credentials, ...config.login })),
+        return of(this.appConfig).pipe(
+          map((config) => ({ ...credentials, ...config })),
           map((credentials) => {
             const { clientid, clientsecret, authcode, useragent, redirecturi } =
               credentials;
@@ -139,16 +118,10 @@ export class Core {
         if (accesstoken && refreshtoken) {
           console.info('Refreshing token');
           this.shiki.auth.credentials = credentials;
-          return from(this.shiki.auth.refreshToken() as Promise<Credentials>);
+          return from(this.shiki.auth.refreshToken());
         }
         console.info('Updating auth data');
-        return from(
-          this.shiki.auth.login({ ...credentials }) as Promise<Credentials>
-        );
-      }),
-      switchMap((credentials) => {
-        this._appConfig.login = credentials;
-        return from(this.saveAppConfig()).pipe(map(() => credentials));
+        return from(this.shiki.auth.login({ ...credentials }));
       })
     );
   }

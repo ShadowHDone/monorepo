@@ -41,6 +41,7 @@
     "@angular/platform-browser": "15.0.4",
     "@angular/platform-browser-dynamic": "15.0.4",
     "@angular/router": "15.0.4",
+    "electron-store": "8.1.0",
     "rxjs": "7.5.7",
     "shikimori-api-node": "1.0.3",
     "tslib": "^2.4.0",

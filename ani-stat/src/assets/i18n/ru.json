@@ -5,7 +5,8 @@
       "GO_TO_DOWNLOADER": "Go to Downloader"
     },
     "DOWNLOADER": {
-      "TITLE": "Downloader"
+      "TITLE": "Downloader",
+        "ANIME_LIST": "Шпишок анимы"
     }
   },
   "HEADER": {

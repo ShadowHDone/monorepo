@@ -1,7 +1,7 @@
 <h1>
   {{ "PAGES.DOWNLOADER.TITLE" | translate }}
 </h1>
-Шпишок анимы ({{ (animeList$ | async)?.length }})
+{{ 'PAGES.DOWNLOADER.ANIME_LIST' | translate }} ({{ (animeList$ | async)?.length }})
 <ol *ngIf="(animeList$ | async)?.length">
   <li *ngFor="let anime of animeList$ | async">
     <img [src]="'https://shikimori.one' + anime.image.preview" />

@@ -1,9 +1,12 @@
 import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as Store from 'electron-store';
 import { Core } from './core';
+import { UserConfig } from './interfaces';
 
-const core = new Core();
+const userConfigStore = new Store<UserConfig>({ defaults: { login: {} } });
+const core = new Core(userConfigStore);
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === '--serve');
@@ -32,6 +35,7 @@ function createWindow(): BrowserWindow {
       ignore: ['.'],
     });
     win.loadURL('http://localhost:4200');
+    win.webContents.openDevTools();
   } else {
     // Path when running electron executable
     let pathIndex = './index.html';
@@ -86,6 +90,10 @@ try {
 
 ipcMain.handle('get-patch', async () => {
   return __dirname;
+});
+
+ipcMain.handle('shiki-get-whoami', async () => {
+  return await core.getWhoAmI().toPromise();
 });
 
 ipcMain.handle('shiki-get-anime-list', async () => {
