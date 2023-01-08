@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { BehaviorSubject, catchError, of, switchMap } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { AnimeSimple } from '../../../app/api/shiki.interface';
 import { ElectronService } from '../core/services';
 
@@ -20,6 +19,7 @@ export class DownloaderComponent implements OnInit {
 
   animeList$ = new BehaviorSubject<AnimeSimple[]>([]);
   page$ = new BehaviorSubject(1);
+  goGetAnimeInformer$ = this.electronService.goGetAnimeInformer$;
 
   constructor(private electronService: ElectronService) {}
 
@@ -47,5 +47,9 @@ export class DownloaderComponent implements OnInit {
   animeListPrevious(): void {
     const page = this.page$.getValue();
     this.page$.next(page > 1 ? page - 1 : page);
+  }
+
+  goGetAnimes(): void {
+    this.electronService.goGetAnimes();
   }
 }

@@ -100,3 +100,12 @@ ipcMain.handle('shiki-get-animes', async (event, response) => {
   // const result = await core.test();
   return await core.getAnimeList(response).toPromise();
 });
+
+
+ipcMain.on('shiki-go-get-animes', () => {
+  core.goGetAnime(); // todo remove multiply subs
+});
+
+export function sendGoGetAnimesInfo(count: number): void {
+  win.webContents.send('shiki-go-get-animes-info', count);
+}

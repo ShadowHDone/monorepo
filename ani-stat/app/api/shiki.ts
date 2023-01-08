@@ -16,14 +16,12 @@ export class Shiki {
     params?: string | URLSearchParams | string[][] | Record<string, string>,
     config?: ShikiConfig
   ): Promise<AxiosResponse<T>> {
-    return axios.get<string, AxiosResponse<T>, undefined>(
-      `${config?.apiUrl ?? API}/${url}${
-        params ? `?${new URLSearchParams(params).toString()}` : ''
-      }`,
-      {
-        headers: this.getHeaders(config),
-      }
-    );
+    const request = `${config?.apiUrl ?? API}/${url}${
+      params ? `?${new URLSearchParams(params).toString()}` : ''
+    }`;
+    return axios.get<string, AxiosResponse<T>, undefined>(request, {
+      headers: this.getHeaders(config),
+    });
   }
 
   static post<T = unknown, D = unknown>(

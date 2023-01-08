@@ -23,6 +23,7 @@ export class ElectronService {
   webFrame: typeof webFrame;
   childProcess: typeof childProcess;
   fs: typeof fs;
+  goGetAnimeInformer$ = new Subject<number>();
 
   constructor() {
     // Conditional imports
@@ -44,6 +45,8 @@ export class ElectronService {
         }
         console.log(`stdout:\n${stdout}`);
       });
+
+      this.subscribes();
 
       // Notes :
       // * A NodeJS's dependency imported with 'window.require' MUST BE present in `dependencies` of both `app/package.json`
@@ -105,10 +108,13 @@ export class ElectronService {
     );
   }
 
-  /**
-   * @deprecated
-   */
-  shikiReload(): void {
-    this.ipcRenderer.send('shiki-reload');
+  goGetAnimes(): void {
+    this.ipcRenderer.send('shiki-go-get-animes');
+  }
+
+  subscribes(): void {
+    this.ipcRenderer.on('shiki-go-get-animes-info', (event, count) => {
+      this.goGetAnimeInformer$.next(count);
+    });
   }
 }

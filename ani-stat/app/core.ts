@@ -9,12 +9,24 @@ import {
   ERROR_NO_USERAGENT,
 } from './consts';
 import { AppConfig, UserConfig } from './interfaces';
-import { Observable, from, tap, catchError, retry, of, switchMap } from 'rxjs';
-import { map } from 'rxjs/internal/operators/map';
+import {
+  Observable,
+  from,
+  tap,
+  catchError,
+  of,
+  switchMap,
+  interval,
+  takeUntil,
+  take,
+  takeWhile,
+  combineLatest,
+} from 'rxjs';
 import { Mock } from './mock';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { Shiki } from './api/shiki';
 import { AnimeRequest, AnimeSimple, UserBrief } from './api/shiki.interface';
+import { sendGoGetAnimesInfo } from './main';
 
 export class Core {
   mock: Mock;
@@ -36,8 +48,6 @@ export class Core {
       console.info('Mock mode is enabled');
       this.mock = new Mock();
     }
-
-    console.log(this.userConfigStore.store);
   }
 
   private readAppConfig(): AppConfig {
@@ -81,6 +91,37 @@ export class Core {
         return [];
       })
     );
+  }
+
+  goGetAnime(): void {
+    const whenStart = Date.now();
+    interval(1000 / 60)
+      .pipe(
+        switchMap((tick) => {
+          return combineLatest([
+            of(tick),
+            Shiki.animes({ page: 1, limit: 50, order: 'id' }),
+          ]);
+        }),
+        take(150),
+        takeWhile(([, animes]) => Boolean(animes.length))
+      )
+      .subscribe({
+        next: ([tick, animes]) => {
+          const count = tick * 50 + animes.length;
+          const takeTime = Date.now() - whenStart;
+          console.log(
+            `Got ${count} animes (${
+              Math.floor((tick / takeTime) * 100000) / 100
+            }rpm)`
+          );
+          sendGoGetAnimesInfo(count);
+        },
+        complete: () => {
+          const takeTime = Date.now() - whenStart;
+          console.log(`Job "getting animes" is done after ${takeTime}ms `);
+        },
+      });
   }
 
   /**
