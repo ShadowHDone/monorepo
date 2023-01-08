@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "module": "commonjs",
-    "target": "es2015",
+    "target": "ES2022",
     "types": [
       "node"
     ],
@@ -23,5 +23,6 @@
   "exclude": [
     "node_modules",
     "**/*.spec.ts"
-  ]
+  ],
+  "useDefineForClassFields": false
 }

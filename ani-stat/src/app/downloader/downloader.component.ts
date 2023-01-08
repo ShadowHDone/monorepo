@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, catchError, of } from 'rxjs';
+import { BehaviorSubject, catchError, of, switchMap } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { Anime } from '../../../app/interfaces';
+import { AnimeSimple } from '../../../app/api/shiki.interface';
 import { ElectronService } from '../core/services';
 
 @Component({
@@ -18,18 +18,34 @@ export class DownloaderComponent implements OnInit {
     .currentDirectory()
     .pipe(catchError((error: Error) => of(error.message)));
 
-  animeList$ = new BehaviorSubject<Anime[]>([]);
+  animeList$ = new BehaviorSubject<AnimeSimple[]>([]);
+  page$ = new BehaviorSubject(1);
 
   constructor(private electronService: ElectronService) {}
 
-  ngOnInit(): void {}
-
-  updateAnimeList(): void {
-    this.electronService
-      .getAnimeList()
-      .pipe(take(1))
+  ngOnInit(): void {
+    this.page$
+      .pipe(
+        switchMap((page) =>
+          this.electronService.getAnimes({
+            limit: 50,
+            order: 'id',
+            page,
+          })
+        )
+      )
       .subscribe((animeList) => {
         this.animeList$.next(animeList);
       });
+  }
+
+  animeListNext(): void {
+    const page = this.page$.getValue();
+    this.page$.next(page < 100000 ? page + 1 : page);
+  }
+
+  animeListPrevious(): void {
+    const page = this.page$.getValue();
+    this.page$.next(page > 1 ? page - 1 : page);
   }
 }

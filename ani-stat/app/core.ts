@@ -1,7 +1,5 @@
-import * as Shikimori from 'shikimori-api-node';
 import * as Store from 'electron-store';
 import * as fs from 'fs';
-// import * as fs from 'fs';
 import {
   CONFIG_FILE_NAME,
   ERROR_NO_AUTHCODE,
@@ -10,14 +8,15 @@ import {
   ERROR_NO_REDIRECTURI,
   ERROR_NO_USERAGENT,
 } from './consts';
-import { Anime, AppConfig, UserBrief, UserConfig } from './interfaces';
+import { AppConfig, UserConfig } from './interfaces';
 import { Observable, from, tap, catchError, retry, of, switchMap } from 'rxjs';
 import { map } from 'rxjs/internal/operators/map';
 import { Mock } from './mock';
 import { throwError } from 'rxjs/internal/observable/throwError';
+import { Shiki } from './api/shiki';
+import { AnimeRequest, AnimeSimple, UserBrief } from './api/shiki.interface';
 
 export class Core {
-  shiki: typeof Shikimori = new Shikimori();
   mock: Mock;
 
   private _appConfig: AppConfig;
@@ -48,9 +47,10 @@ export class Core {
     return raw ? JSON.parse(raw) : {};
   }
 
-  getAnimeList(): Observable<Anime[]> {
-    return from(this.shiki.api.animes.list() as Promise<Anime[]>).pipe(
-      retry({ count: 1, delay: this.reAuth }),
+  getAnimeList(request?: AnimeRequest): Observable<AnimeSimple[]> {
+    return from(
+      Shiki.animes(request, { userAgent: this.appConfig.user_agent })
+    ).pipe(
       tap((list) => {
         console.log('getAnimeList', list);
       }),
@@ -61,15 +61,18 @@ export class Core {
     );
   }
 
+  /**
+   * @todo make auth
+   * @returns
+   */
   getWhoAmI(): Observable<UserBrief> {
-    return from(this.shiki.api.users.whoami() as Promise<UserBrief>).pipe(
+    return from(Shiki.whoami({})).pipe(
       switchMap((data) => {
         if (!data) {
           return throwError(() => new Error('No data'));
         }
         return of(data);
       }),
-      retry({ count: 1, delay: (error) => this.reAuth(error) }),
       tap((data) => {
         console.log('getWhoAmI', data);
       }),
@@ -86,43 +89,43 @@ export class Core {
    * @param error
    * @returns
    */
-  private reAuth(error): Observable<unknown> {
-    console.warn("Couldn't get message from server", error);
-    if (!this.shiki) {
-      this.shiki = new Shikimori();
-    }
-    return of(this.shiki.auth.credentials).pipe(
-      switchMap((credentials = {}) => {
-        const { clientid, clientsecret, authcode, useragent, redirecturi } =
-          credentials;
-        if (clientid && clientsecret && authcode && useragent && redirecturi) {
-          return of(credentials);
-        }
-        // todo make appconfig as Subject
-        return of(this.appConfig).pipe(
-          map((config) => ({ ...credentials, ...config })),
-          map((credentials) => {
-            const { clientid, clientsecret, authcode, useragent, redirecturi } =
-              credentials;
-            if (!clientid) throw ERROR_NO_CLIENTID;
-            if (!clientsecret) throw ERROR_NO_CLIENTSECRET;
-            if (!authcode) throw ERROR_NO_AUTHCODE;
-            if (!useragent) throw ERROR_NO_USERAGENT;
-            if (!redirecturi) throw ERROR_NO_REDIRECTURI;
-            return credentials;
-          })
-        );
-      }),
-      switchMap((credentials) => {
-        const { accesstoken, refreshtoken } = credentials;
-        if (accesstoken && refreshtoken) {
-          console.info('Refreshing token');
-          this.shiki.auth.credentials = credentials;
-          return from(this.shiki.auth.refreshToken());
-        }
-        console.info('Updating auth data');
-        return from(this.shiki.auth.login({ ...credentials }));
-      })
-    );
+  private reAuth(error) {
+    // console.warn("Couldn't get message from server", error);
+    // if (!this.shiki) {
+    //   this.shiki = new Shikimori();
+    // }
+    // return of(this.shiki.auth.credentials).pipe(
+    //   switchMap((credentials = {}) => {
+    //     const { clientid, clientsecret, authcode, useragent, redirecturi } =
+    //       credentials;
+    //     if (clientid && clientsecret && authcode && useragent && redirecturi) {
+    //       return of(credentials);
+    //     }
+    //     // todo make appconfig as Subject
+    //     return of(this.appConfig).pipe(
+    //       map((config) => ({ ...credentials, ...config })),
+    //       map((credentials) => {
+    //         const { clientid, clientsecret, authcode, useragent, redirecturi } =
+    //           credentials;
+    //         if (!clientid) throw ERROR_NO_CLIENTID;
+    //         if (!clientsecret) throw ERROR_NO_CLIENTSECRET;
+    //         if (!authcode) throw ERROR_NO_AUTHCODE;
+    //         if (!useragent) throw ERROR_NO_USERAGENT;
+    //         if (!redirecturi) throw ERROR_NO_REDIRECTURI;
+    //         return credentials;
+    //       })
+    //     );
+    //   }),
+    //   switchMap((credentials) => {
+    //     const { accesstoken, refreshtoken } = credentials;
+    //     if (accesstoken && refreshtoken) {
+    //       console.info('Refreshing token');
+    //       this.shiki.auth.credentials = credentials;
+    //       return from(this.shiki.auth.refreshToken());
+    //     }
+    //     console.info('Updating auth data');
+    //     return from(this.shiki.auth.login({ ...credentials }));
+    //   })
+    // );
   }
 }

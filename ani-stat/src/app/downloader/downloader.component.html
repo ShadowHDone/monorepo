@@ -4,8 +4,10 @@
 {{ 'PAGES.DOWNLOADER.ANIME_LIST' | translate }} ({{ (animeList$ | async)?.length }})
 <ol *ngIf="(animeList$ | async)?.length">
   <li *ngFor="let anime of animeList$ | async">
+    ({{anime.id}})
     <img [src]="'https://shikimori.one' + anime.image.preview" />
     {{ anime.name }}
   </li>
 </ol>
-<button mat-raised-button (click)="updateAnimeList()">Update anime list</button>
+<button mat-raised-button (click)="animeListPrevious()">Previous anime list</button>
+<button mat-raised-button (click)="animeListNext()">Next anime list</button>

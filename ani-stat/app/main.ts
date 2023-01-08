@@ -96,7 +96,7 @@ ipcMain.handle('shiki-get-whoami', async () => {
   return await core.getWhoAmI().toPromise();
 });
 
-ipcMain.handle('shiki-get-anime-list', async () => {
+ipcMain.handle('shiki-get-animes', async (event, response) => {
   // const result = await core.test();
-  return await core.getAnimeList().toPromise();
+  return await core.getAnimeList(response).toPromise();
 });
