@@ -16,11 +16,10 @@ import {
   catchError,
   of,
   switchMap,
-  interval,
-  takeUntil,
   take,
   takeWhile,
   combineLatest,
+  BehaviorSubject,
 } from 'rxjs';
 import { Mock } from './mock';
 import { throwError } from 'rxjs/internal/observable/throwError';
@@ -95,7 +94,8 @@ export class Core {
 
   goGetAnime(): void {
     const whenStart = Date.now();
-    interval(1000 / 60)
+    const downloader = new BehaviorSubject(0);
+    downloader
       .pipe(
         switchMap((tick) => {
           return combineLatest([
@@ -103,7 +103,7 @@ export class Core {
             Shiki.animes({ page: 1, limit: 50, order: 'id' }),
           ]);
         }),
-        take(150),
+        take(50),
         takeWhile(([, animes]) => Boolean(animes.length))
       )
       .subscribe({
@@ -112,10 +112,11 @@ export class Core {
           const takeTime = Date.now() - whenStart;
           console.log(
             `Got ${count} animes (${
-              Math.floor((tick / takeTime) * 100000) / 100
+              Math.floor((tick / takeTime) * 1000 * 60 * 100) / 100
             }rpm)`
           );
           sendGoGetAnimesInfo(count);
+          downloader.next(tick + 1);
         },
         complete: () => {
           const takeTime = Date.now() - whenStart;

@@ -1,4 +1,5 @@
 import axios, { RawAxiosRequestHeaders, AxiosResponse } from 'axios';
+import PQueue from 'p-queue';
 import { Video } from 'playwright';
 import { API } from './shiki.consts';
 import {
@@ -10,17 +11,36 @@ import {
   UserBrief,
 } from './shiki.interface';
 
+const RATE_PER_MINUTE = 90;
+
+/**
+ * We also have the limit with 5 requests per second,
+ * so if we won't set interval time limit for 1 request
+ * directly, we will immediately run out the limit for
+ * one second.
+ *
+ * For regular desktop using we can change limits from
+ * minutes to seconds.
+ */
+const queue = new PQueue({
+  concurrency: 1,
+  interval: Math.ceil((1000 * 60) / RATE_PER_MINUTE),
+  intervalCap: 1,
+});
+
 export class Shiki {
   static get<T = unknown>(
     url: string,
     params?: string | URLSearchParams | string[][] | Record<string, string>,
     config?: ShikiConfig
   ): Promise<AxiosResponse<T>> {
-    const request = `${config?.apiUrl ?? API}/${url}${
-      params ? `?${new URLSearchParams(params).toString()}` : ''
-    }`;
-    return axios.get<string, AxiosResponse<T>, undefined>(request, {
-      headers: this.getHeaders(config),
+    return queue.add(() => {
+      const request = `${config?.apiUrl ?? API}/${url}${
+        params ? `?${new URLSearchParams(params).toString()}` : ''
+      }`;
+      return axios.get<string, AxiosResponse<T>, undefined>(request, {
+        headers: this.getHeaders(config),
+      });
     });
   }
 
@@ -29,13 +49,15 @@ export class Shiki {
     data?: D,
     config?: ShikiConfig
   ): Promise<AxiosResponse<T>> {
-    return axios.post<string, AxiosResponse<T>, D>(
-      `${config?.apiUrl ?? API}/${url}`,
-      data,
-      {
-        headers: this.getHeaders(config),
-      }
-    );
+    return queue.add(() => {
+      return axios.post<string, AxiosResponse<T>, D>(
+        `${config?.apiUrl ?? API}/${url}`,
+        data,
+        {
+          headers: this.getHeaders(config),
+        }
+      );
+    });
   }
 
   static put<T = unknown, D = unknown>(
@@ -43,13 +65,15 @@ export class Shiki {
     data?: D,
     config?: ShikiConfig
   ): Promise<AxiosResponse<T>> {
-    return axios.put<string, AxiosResponse<T>, D>(
-      `${config?.apiUrl ?? API}/${url}`,
-      data,
-      {
-        headers: this.getHeaders(config),
-      }
-    );
+    return queue.add(() => {
+      return axios.put<string, AxiosResponse<T>, D>(
+        `${config?.apiUrl ?? API}/${url}`,
+        data,
+        {
+          headers: this.getHeaders(config),
+        }
+      );
+    });
   }
 
   static patch<T = unknown, D = unknown>(
@@ -57,13 +81,15 @@ export class Shiki {
     data?: D,
     config?: ShikiConfig
   ): Promise<AxiosResponse<T>> {
-    return axios.patch<string, AxiosResponse<T>, D>(
-      `${config?.apiUrl ?? API}/${url}`,
-      data,
-      {
-        headers: this.getHeaders(config),
-      }
-    );
+    return queue.add(() => {
+      return axios.patch<string, AxiosResponse<T>, D>(
+        `${config?.apiUrl ?? API}/${url}`,
+        data,
+        {
+          headers: this.getHeaders(config),
+        }
+      );
+    });
   }
 
   static delete<T = unknown>(
