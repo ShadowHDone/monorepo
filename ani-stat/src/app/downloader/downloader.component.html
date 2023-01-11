@@ -1,25 +1,39 @@
 <h1>
   {{ "PAGES.DOWNLOADER.TITLE" | translate }}
 </h1>
-{{ "PAGES.DOWNLOADER.ANIME_LIST" | translate }} ({{
-  (animeList$ | async)?.length
-}})
-<ol *ngIf="(animeList$ | async)?.length">
-  <li *ngFor="let anime of animeList$ | async">
-    ({{ anime.id }}) {{ anime.name }}
-  </li>
-</ol>
 <div>
-  Получено анимы: {{ goGetAnimeInformer$ | async }}
+  {{ "PAGES.DOWNLOADER.ANIME_LIST" | translate }} {{ animeList.length }}
 </div>
-<div>
-<button mat-raised-button (click)="animeListPrevious()">
-  Previous anime list
-</button>
-<button mat-raised-button (click)="animeListNext()">Next anime list</button>
+<div class="info grid">
+  <div>
+    <span class="mat-headline-2">{{ animeList.length }}</span>
+    <span class="mat-small">total</span>
+  </div>
+  <div class="grid">
+    <div>
+      <span class="mat-headline-5">{{ rps | number : "1.2-2" }}</span>
+      <span class="mat-small">rps</span>
+    </div>
+    <div>
+      <span class="mat-headline-5">{{ aps | number : "1.2-2" }}</span>
+      <span class="mat-small">aps</span>
+    </div>
+    <div>
+      <span class="mat-headline-5">{{ rpm | number : "1.2-2" }}</span>
+      <span class="mat-small">rpm</span>
+    </div>
+    <div>
+      <span class="mat-headline-5">{{ apm | number : "1.2-2" }}</span>
+      <span class="mat-small">apm</span>
+    </div>
+  </div>
 </div>
 
 <div>
-<button mat-raised-button color="primary" (click)="goGetAnimes()">Go update</button>
-<button mat-raised-button color="primary" (click)="goGetAnimes()">Stop update</button>
+  <button mat-raised-button color="primary" (click)="goGetAnimes()">
+    Go update
+  </button>
+  <button mat-raised-button color="primary" (click)="goGetAnimes()">
+    Stop update
+  </button>
 </div>

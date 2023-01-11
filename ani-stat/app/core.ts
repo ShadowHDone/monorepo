@@ -103,7 +103,7 @@ export class Core {
             Shiki.animes({ page: 1, limit: 50, order: 'id' }),
           ]);
         }),
-        take(50),
+        take(90),
         takeWhile(([, animes]) => Boolean(animes.length))
       )
       .subscribe({
@@ -111,11 +111,11 @@ export class Core {
           const count = tick * 50 + animes.length;
           const takeTime = Date.now() - whenStart;
           console.log(
-            `Got ${count} animes (${
+            `${tick} Got ${count} animes (${
               Math.floor((tick / takeTime) * 1000 * 60 * 100) / 100
             }rpm)`
           );
-          sendGoGetAnimesInfo(count);
+          sendGoGetAnimesInfo(animes);
           downloader.next(tick + 1);
         },
         complete: () => {

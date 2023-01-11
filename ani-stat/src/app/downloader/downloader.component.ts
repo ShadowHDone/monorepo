@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+} from '@angular/core';
 import { BehaviorSubject, catchError, of, switchMap } from 'rxjs';
 import { AnimeSimple } from '../../../app/api/shiki.interface';
 import { ElectronService } from '../core/services';
@@ -18,10 +23,20 @@ export class DownloaderComponent implements OnInit {
     .pipe(catchError((error: Error) => of(error.message)));
 
   animeList$ = new BehaviorSubject<AnimeSimple[]>([]);
+  animeList: AnimeSimple[] = [];
+  requests = 0;
+  rps = 0;
+  rpm = 0;
+  aps = 0;
+  apm = 0;
+  started: number;
   page$ = new BehaviorSubject(1);
   goGetAnimeInformer$ = this.electronService.goGetAnimeInformer$;
 
-  constructor(private electronService: ElectronService) {}
+  constructor(
+    private electronService: ElectronService,
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.page$
@@ -37,19 +52,24 @@ export class DownloaderComponent implements OnInit {
       .subscribe((animeList) => {
         this.animeList$.next(animeList);
       });
-  }
 
-  animeListNext(): void {
-    const page = this.page$.getValue();
-    this.page$.next(page < 100000 ? page + 1 : page);
-  }
+    this.electronService.goGetAnimeInformer$.subscribe((animes) => {
+      const takeTime = Date.now() - this.started;
+      this.animeList = this.animeList.concat(animes);
+      this.requests++;
+      this.rps = (this.requests / takeTime) * 1000;
+      this.rpm = this.rps * 60;
+      this.aps = (this.animeList.length / takeTime) * 1000;
+      this.apm = this.aps * 60;
 
-  animeListPrevious(): void {
-    const page = this.page$.getValue();
-    this.page$.next(page > 1 ? page - 1 : page);
+      this.cd.detectChanges();
+    });
   }
 
   goGetAnimes(): void {
+    if (!this.started) {
+      this.started = Date.now();
+    }
     this.electronService.goGetAnimes();
   }
 }

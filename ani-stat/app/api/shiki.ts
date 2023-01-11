@@ -11,21 +11,25 @@ import {
   UserBrief,
 } from './shiki.interface';
 
+const RATE_PER_SECOND = 5;
 const RATE_PER_MINUTE = 90;
+const RATE_FAULT_CORRECTION = 0.95;
 
 /**
- * We also have the limit with 5 requests per second,
- * so if we won't set interval time limit for 1 request
- * directly, we will immediately run out the limit for
- * one second.
+ * If we give an ability to use max rps (5 requests per second), we run out the limit for
+ * one minute witch is 90 requests (5*18 = 90). So there we give an ability to use max
+ * possible request speed for first 5 requests, but interval is ~3.3 seconds, so the max
+ * interval per minute is 60s/3.3s*5r = ~90rpm;
  *
- * For regular desktop using we can change limits from
- * minutes to seconds.
+ * After measuring I got about 95.4rpm (1.59rps) instead of 90rpm so I added correction to
+ * decrease max rpm by 5% and avoid potential ban.
  */
 const queue = new PQueue({
   concurrency: 1,
-  interval: Math.ceil((1000 * 60) / RATE_PER_MINUTE),
-  intervalCap: 1,
+  interval: Math.ceil(
+    (1000 * 60) / ((RATE_PER_MINUTE * RATE_FAULT_CORRECTION) / RATE_PER_SECOND)
+  ),
+  intervalCap: RATE_PER_SECOND,
 });
 
 export class Shiki {

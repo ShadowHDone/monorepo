@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as Store from 'electron-store';
 import { Core } from './core';
 import { UserConfig } from './interfaces';
+import { AnimeSimple } from './api/shiki.interface';
 
 const userConfigStore = new Store<UserConfig>({ defaults: { login: {} } });
 const core = new Core(userConfigStore);
@@ -97,15 +98,13 @@ ipcMain.handle('shiki-get-whoami', async () => {
 });
 
 ipcMain.handle('shiki-get-animes', async (event, response) => {
-  // const result = await core.test();
   return await core.getAnimeList(response).toPromise();
 });
-
 
 ipcMain.on('shiki-go-get-animes', () => {
   core.goGetAnime(); // todo remove multiply subs
 });
 
-export function sendGoGetAnimesInfo(count: number): void {
-  win.webContents.send('shiki-go-get-animes-info', count);
+export function sendGoGetAnimesInfo(animes: AnimeSimple[]): void {
+  win.webContents.send('shiki-go-get-animes-info', animes);
 }

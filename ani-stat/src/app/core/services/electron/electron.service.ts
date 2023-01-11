@@ -23,7 +23,7 @@ export class ElectronService {
   webFrame: typeof webFrame;
   childProcess: typeof childProcess;
   fs: typeof fs;
-  goGetAnimeInformer$ = new Subject<number>();
+  goGetAnimeInformer$ = new Subject<AnimeSimple[]>();
 
   constructor() {
     // Conditional imports
@@ -113,8 +113,8 @@ export class ElectronService {
   }
 
   subscribes(): void {
-    this.ipcRenderer.on('shiki-go-get-animes-info', (event, count) => {
-      this.goGetAnimeInformer$.next(count);
+    this.ipcRenderer.on('shiki-go-get-animes-info', (event, animes) => {
+      this.goGetAnimeInformer$.next(animes);
     });
   }
 }
