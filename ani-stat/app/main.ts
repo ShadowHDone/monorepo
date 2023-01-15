@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as Store from 'electron-store';
 import { Core } from './core';
-import { UserConfig } from './interfaces';
+import { AnimeListInfo, UserConfig } from './interfaces';
 import { AnimeSimple } from './api/shiki.interface';
 
 const userConfigStore = new Store<UserConfig>({ defaults: { login: {} } });
@@ -101,10 +101,13 @@ ipcMain.handle('shiki-get-animes', async (event, response) => {
   return await core.getAnimeList(response).toPromise();
 });
 
-ipcMain.on('shiki-go-get-animes', () => {
-  core.goGetAnime(); // todo remove multiply subs
-});
+ipcMain.on(
+  'shiki-download-anime-list',
+  (event, command: 'start' | 'pause' | 'continue') => {
+    core.downloadAnimeList(command);
+  },
+);
 
-export function sendGoGetAnimesInfo(animes: AnimeSimple[]): void {
-  win.webContents.send('shiki-go-get-animes-info', animes);
+export function sendDownloadAnimeListInfo(animeListInfo: AnimeListInfo): void {
+  win.webContents.send('shiki-download-anime-list-info', animeListInfo);
 }

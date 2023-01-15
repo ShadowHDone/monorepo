@@ -14,6 +14,7 @@ import {
   AnimeSimple,
   UserBrief,
 } from '../../../../../app/api/shiki.interface';
+import { AnimeListInfo } from '../../../../../app/interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,7 @@ export class ElectronService {
   webFrame: typeof webFrame;
   childProcess: typeof childProcess;
   fs: typeof fs;
-  goGetAnimeInformer$ = new Subject<AnimeSimple[]>();
+  goGetAnimeInformer$ = new Subject<AnimeListInfo>();
 
   constructor() {
     // Conditional imports
@@ -82,7 +83,7 @@ export class ElectronService {
     const readdir = util.promisify(fs.readdir);
     return this.currentDirectory().pipe(
       mergeMap((path) => from(readdir(path, { withFileTypes: true }))),
-      map((value) => value.map((dirent) => dirent.name))
+      map((value) => value.map((dirent) => dirent.name)),
     );
   }
 
@@ -90,31 +91,34 @@ export class ElectronService {
     return from(
       this.ipcRenderer.invoke('shiki-get-animes', request) as Promise<
         AnimeSimple[]
-      >
+      >,
     ).pipe(
       tap((data) => {
         console.log('shiki-get-animes', data);
-      })
+      }),
     );
   }
 
   getWhoAmI(): Observable<UserBrief> {
     return from(
-      this.ipcRenderer.invoke('shiki-get-whoami') as Promise<UserBrief>
+      this.ipcRenderer.invoke('shiki-get-whoami') as Promise<UserBrief>,
     ).pipe(
       tap((data) => {
         console.log('shiki-get-whoami', data);
-      })
+      }),
     );
   }
 
-  goGetAnimes(): void {
-    this.ipcRenderer.send('shiki-go-get-animes');
+  downloadAnimes(command: 'start' | 'pause' | 'continue'): void {
+    this.ipcRenderer.send('shiki-download-anime-list', command);
   }
 
   subscribes(): void {
-    this.ipcRenderer.on('shiki-go-get-animes-info', (event, animes) => {
-      this.goGetAnimeInformer$.next(animes);
-    });
+    this.ipcRenderer.on(
+      'shiki-download-anime-list-info',
+      (event, animes: AnimeListInfo) => {
+        this.goGetAnimeInformer$.next(animes);
+      },
+    );
   }
 }

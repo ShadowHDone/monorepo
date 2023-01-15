@@ -48,19 +48,23 @@ export class Mock {
       .get('/api/animes')
       .reply(200, [ANIME1, ANIME2])
       .get('/api/animes')
-      .query({ limit: 50, page: 1, order: 'id' })
+
+      .query((parsedObj) => Number(parsedObj['page']) < 90)
       .reply(
         200,
         Array(50)
           .fill({})
           .map((value, index) => (index % 2 ? ANIME1 : ANIME2))
       )
+
       .get('/api/animes')
-      .query({ limit: 50, page: 2, order: 'id' })
+      .query((parsedObj) => Number(parsedObj['page']) == 90)
       .reply(200, [ANIME1, ANIME2])
+
       .get('/api/animes')
-      .query({ limit: 50, page: 3, order: 'id' })
+      .query((parsedObj) => Number(parsedObj['page']) > 90)
       .reply(200, [])
+
       .persist();
   }
 }

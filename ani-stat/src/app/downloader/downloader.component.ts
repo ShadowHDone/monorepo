@@ -4,9 +4,10 @@ import {
   Component,
   OnInit,
 } from '@angular/core';
-import { BehaviorSubject, catchError, of, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, of, map, startWith } from 'rxjs';
 import { AnimeSimple } from '../../../app/api/shiki.interface';
 import { ElectronService } from '../core/services';
+import { TimerController, createStopwatch } from '../helpers/stopwatch';
 
 @Component({
   selector: 'app-downloader',
@@ -22,54 +23,53 @@ export class DownloaderComponent implements OnInit {
     .currentDirectory()
     .pipe(catchError((error: Error) => of(error.message)));
 
-  animeList$ = new BehaviorSubject<AnimeSimple[]>([]);
-  animeList: AnimeSimple[] = [];
-  requests = 0;
+  animeCount = 0;
   rps = 0;
   rpm = 0;
   aps = 0;
   apm = 0;
   started: number;
-  page$ = new BehaviorSubject(1);
+  stopped: number;
   goGetAnimeInformer$ = this.electronService.goGetAnimeInformer$;
+
+  timerController$ = new BehaviorSubject<TimerController>('stop');
+  timer$ = createStopwatch(this.timerController$).pipe(
+    startWith(0),
+    map((time) => time * 1000),
+  );
 
   constructor(
     private electronService: ElectronService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    this.page$
-      .pipe(
-        switchMap((page) =>
-          this.electronService.getAnimes({
-            limit: 50,
-            order: 'id',
-            page,
-          })
-        )
-      )
-      .subscribe((animeList) => {
-        this.animeList$.next(animeList);
-      });
+    this.electronService.goGetAnimeInformer$.subscribe(
+      ({ requests, animes, status }) => {
+        const takeTime = Date.now() - this.started;
+        this.animeCount = animes;
+        this.rps = (requests / takeTime) * 1000;
+        this.rpm = this.rps * 60;
+        this.aps = (animes / takeTime) * 1000;
+        this.apm = this.aps * 60;
 
-    this.electronService.goGetAnimeInformer$.subscribe((animes) => {
-      const takeTime = Date.now() - this.started;
-      this.animeList = this.animeList.concat(animes);
-      this.requests++;
-      this.rps = (this.requests / takeTime) * 1000;
-      this.rpm = this.rps * 60;
-      this.aps = (this.animeList.length / takeTime) * 1000;
-      this.apm = this.aps * 60;
-
-      this.cd.detectChanges();
-    });
+        if (status === 'end') {
+          this.timerController$.next('stop');
+        }
+      },
+    );
   }
 
-  goGetAnimes(): void {
-    if (!this.started) {
+  downloadAnimes(command: TimerController): void {
+    this.timerController$.next(command);
+    if (command === 'start') {
       this.started = Date.now();
+      this.electronService.downloadAnimes('start');
     }
-    this.electronService.goGetAnimes();
+
+    if (command === 'stop') {
+      this.stopped = Date.now();
+      this.electronService.downloadAnimes('pause');
+    }
   }
 }

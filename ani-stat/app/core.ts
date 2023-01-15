@@ -25,11 +25,14 @@ import { Mock } from './mock';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { Shiki } from './api/shiki';
 import { AnimeRequest, AnimeSimple, UserBrief } from './api/shiki.interface';
-import { sendGoGetAnimesInfo } from './main';
+import { sendDownloadAnimeListInfo } from './main';
 
 export class Core {
   mock: Mock;
 
+  private animeList: AnimeSimple[] = [];
+  private downloader$: BehaviorSubject<number>;
+  private downloadPause = false;
   private _appConfig: AppConfig;
 
   /**
@@ -58,7 +61,7 @@ export class Core {
 
   getAnimeList(request?: AnimeRequest): Observable<AnimeSimple[]> {
     return from(
-      Shiki.animes(request, { userAgent: this.appConfig.user_agent })
+      Shiki.animes(request, { userAgent: this.appConfig.user_agent }),
     ).pipe(
       tap((list) => {
         console.log('getAnimeList', list);
@@ -66,7 +69,7 @@ export class Core {
       catchError((error) => {
         console.error(error);
         return [];
-      })
+      }),
     );
   }
 
@@ -88,41 +91,78 @@ export class Core {
       catchError((error) => {
         console.error(error);
         return [];
-      })
+      }),
     );
   }
 
-  goGetAnime(): void {
-    const whenStart = Date.now();
-    const downloader = new BehaviorSubject(0);
-    downloader
-      .pipe(
-        switchMap((tick) => {
-          return combineLatest([
-            of(tick),
-            Shiki.animes({ page: 1, limit: 50, order: 'id' }),
-          ]);
-        }),
-        take(90),
-        takeWhile(([, animes]) => Boolean(animes.length))
-      )
-      .subscribe({
-        next: ([tick, animes]) => {
-          const count = tick * 50 + animes.length;
-          const takeTime = Date.now() - whenStart;
-          console.log(
-            `${tick} Got ${count} animes (${
-              Math.floor((tick / takeTime) * 1000 * 60 * 100) / 100
-            }rpm)`
-          );
-          sendGoGetAnimesInfo(animes);
-          downloader.next(tick + 1);
-        },
-        complete: () => {
-          const takeTime = Date.now() - whenStart;
-          console.log(`Job "getting animes" is done after ${takeTime}ms `);
-        },
-      });
+  downloadAnimeList(command: 'start' | 'pause' | 'continue'): void {
+    if (command === 'pause') {
+      this.downloadPause = true;
+      return;
+    }
+
+    this.downloadPause = false;
+
+    if (command === 'start') {
+      if (this.downloader$) this.downloader$.complete();
+
+      const pageLimit = 50;
+      const whenStart = Date.now();
+      let animesCount = 0;
+      this.downloader$ = new BehaviorSubject(0);
+      this.downloader$
+        .pipe(
+          switchMap((page) => {
+            return combineLatest([
+              of(page),
+              Shiki.animes({ page, limit: pageLimit, order: 'id' }),
+            ]);
+          }),
+          takeWhile(([, animes]) => Boolean(animes.length)),
+        )
+        .subscribe({
+          next: ([page, animes]) => {
+            this.saveAnimeList(animes);
+            animesCount += animes.length;
+            const takeTime = Date.now() - whenStart;
+            console.log(
+              `${page} page, got ${animesCount} animes (${
+                Math.floor((page / takeTime) * 1000 * 60 * 100) / 100
+              }rpm)`,
+            );
+            sendDownloadAnimeListInfo({
+              requests: page,
+              animes: animesCount,
+              status: animesCount < pageLimit ? 'warn' : undefined,
+            });
+            if (this.downloadPause) return;
+            this.downloader$.next(page + 1);
+          },
+          complete: () => {
+            sendDownloadAnimeListInfo({
+              requests: 0,
+              animes: animesCount,
+              status: 'end',
+            });
+            const takeTime = Date.now() - whenStart;
+            console.log(`Job "getting animes" is done after ${takeTime}ms `);
+          },
+        });
+
+      return;
+    }
+
+    if (
+      command === 'continue' &&
+      this.downloader$ &&
+      !this.downloader$.closed
+    ) {
+      this.downloader$.next(this.downloader$.getValue() + 1);
+    }
+  }
+
+  private saveAnimeList(animes: AnimeSimple[]): void {
+    this.animeList = this.animeList.concat(animes);
   }
 
   /**
