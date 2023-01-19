@@ -2,57 +2,9 @@
   {{ 'PAGES.DOWNLOADER.TITLE' | translate }}
 </h1>
 
-<div class="info grid">
-  <div>
-    <span class="mat-headline-2">{{ animeCount | number }}</span>
-    <span class="mat-small">total</span>
-  </div>
-  <div class="grid">
-    <div class="mat-headline-5 timer">
-      {{ timer$ | async | date : 'H:mm:ss' : '+0000' }}
-    </div>
-    <div>
-      <span class="mat-headline-5">{{ rps | number : '1.2-2' }}</span>
-      <span class="mat-small">rps</span>
-    </div>
-    <div>
-      <span class="mat-headline-5">{{ aps | number : '1.2-2' }}</span>
-      <span class="mat-small">aps</span>
-    </div>
-    <div>
-      <span class="mat-headline-5">{{ rpm | number : '1.2-2' }}</span>
-      <span class="mat-small">rpm</span>
-    </div>
-    <div>
-      <span class="mat-headline-5">{{ apm | number : '1.2-2' }}</span>
-      <span class="mat-small">apm</span>
-    </div>
-  </div>
-
-  <div class="controls">
-    <button
-      *ngIf="(timerController$ | async) === 'stop'"
-      (click)="downloadAnimes('start')"
-      color="primary"
-      mat-raised-button
-    >
-      {{ (timer$ | async) === 0 ? 'Start update' : 'Complete update' }}
-    </button>
-    <button
-      *ngIf="(timerController$ | async) === 'start'"
-      (click)="downloadAnimes('stop')"
-      color="primary"
-      mat-raised-button
-    >
-      Pause update
-    </button>
-    <button
-      *ngIf="(timerController$ | async) === 'start'"
-      (click)="downloadAnimes('stop')"
-      color="primary"
-      mat-raised-button
-    >
-      Stop update
-    </button>
-  </div>
-</div>
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab [label]="'PAGES.DOWNLOADER.TABS.SIMPLE' | translate">
+    <app-anime-total-list></app-anime-total-list>
+  </mat-tab>
+  <mat-tab [label]="'PAGES.DOWNLOADER.TABS.FULL' | translate"></mat-tab>
+</mat-tab-group>

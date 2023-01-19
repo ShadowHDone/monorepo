@@ -6,10 +6,18 @@
       },
       "DOWNLOADER": {
         "TITLE": "Downloader",
-        "ANIME_LIST": "Anime list"
+        "TABS": {
+          "SIMPLE": "Total anime list",
+          "FULL": "Anime details"
+        }
     }
   },
   "HEADER": {
     "TITLE": "AniStat"
+  },
+  "SHARED": {
+    "PROGRESS_INFO": {
+      "UNAVAILABLE_ETA": "ETA is N/A"
+    }
   }
 }

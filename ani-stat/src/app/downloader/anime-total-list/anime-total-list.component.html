@@ -1,0 +1,36 @@
+<app-progress-info
+  [total]="animeCount"
+  [timer$]="timer$"
+  [rps]="rps"
+  [rpm]="rpm"
+  [aps]="aps"
+  [apm]="apm"
+  class="info"
+></app-progress-info>
+
+<div class="controls">
+  <button
+    *ngIf="(timerController$ | async) === 'stop'"
+    (click)="downloadAnimes('start')"
+    color="primary"
+    mat-raised-button
+  >
+    {{ (timer$ | async) === 0 ? 'Start update' : 'Complete update' }}
+  </button>
+  <button
+    *ngIf="(timerController$ | async) === 'start'"
+    (click)="downloadAnimes('stop')"
+    color="primary"
+    mat-raised-button
+  >
+    Pause update
+  </button>
+  <button
+    *ngIf="(timerController$ | async) === 'start'"
+    (click)="downloadAnimes('stop')"
+    color="primary"
+    mat-raised-button
+  >
+    Stop update
+  </button>
+</div>

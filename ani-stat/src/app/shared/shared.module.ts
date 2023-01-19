@@ -10,8 +10,14 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
 
-const MATERIAL = [MatIconModule, MatToolbarModule, MatButtonModule];
+const MATERIAL = [
+  MatIconModule,
+  MatToolbarModule,
+  MatButtonModule,
+  MatTabsModule,
+];
 
 @NgModule({
   declarations: [PageNotFoundComponent, WebviewDirective],

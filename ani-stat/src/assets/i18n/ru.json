@@ -2,14 +2,22 @@
   "PAGES": {
     "HOME": {
       "TITLE": "AniStat app",
-      "GO_TO_DOWNLOADER": "Go to Downloader"
+      "GO_TO_DOWNLOADER": "Перейти к загрузкам"
     },
     "DOWNLOADER": {
-      "TITLE": "Downloader",
-        "ANIME_LIST": "Шпишок анимы"
+      "TITLE": "Загрузчик",
+      "TABS": {
+        "SIMPLE": "Общий список аниме",
+        "FULL": "Подробные данные аниме"
+      }
     }
   },
   "HEADER": {
     "TITLE": "AniStat"
+  },
+  "SHARED": {
+    "PROGRESS_INFO": {
+      "UNAVAILABLE_ETA": "ETA н/д"
+    }
   }
 }

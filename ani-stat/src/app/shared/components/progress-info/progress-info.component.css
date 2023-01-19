@@ -1,0 +1,21 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  grid-auto-flow: row;
+  align-items: center;
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  grid-auto-flow: row;
+  align-items: center;
+  text-align: center;
+}
+
+.text {
+  margin: 0;
+}
