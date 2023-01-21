@@ -1,28 +1,43 @@
-<div>
-  <div class="mat-headline-5 text">Total</div>
-  <div class="mat-headline-2 text">{{ total | number }}</div>
-</div>
-<div class="grid">
-  <div class="mat-headline-5 text">
-    {{ timer$ | async | date : 'H:mm:ss' : '+0000' }}
+<mat-card>
+  <mat-progress-bar
+    *ngIf="!estimatedCount && isGoing"
+    mode="indeterminate"
+  ></mat-progress-bar>
+  <mat-progress-bar
+    *ngIf="estimatedCount && (isGoing || isPaused)"
+    mode="determinate"
+  ></mat-progress-bar>
+
+  <div class="grid grid--container">
+    <div>
+      <div class="mat-headline-5 text">
+        {{ 'SHARED.PROGRESS_INFO.TOTAL_COUNT' | translate }}
+      </div>
+      <div class="mat-headline-2 text">{{ total | number }}</div>
+    </div>
+    <div class="grid">
+      <div class="mat-headline-5 text">
+        {{ timePassed | date : 'H:mm:ss' : '+0000' }}
+      </div>
+      <div class="mat-headline-5 text">
+        {{ 'SHARED.PROGRESS_INFO.UNAVAILABLE_ETA' | translate }}
+      </div>
+      <div>
+        <span class="mat-headline-5">{{ rps | number : '1.2-2' }}</span>
+        <span class="mat-small">rps</span>
+      </div>
+      <div>
+        <span class="mat-headline-5">{{ aps | number : '1.2-2' }}</span>
+        <span class="mat-small">aps</span>
+      </div>
+      <div>
+        <span class="mat-headline-5">{{ rpm | number : '1.2-2' }}</span>
+        <span class="mat-small">rpm</span>
+      </div>
+      <div>
+        <span class="mat-headline-5">{{ apm | number : '1.2-2' }}</span>
+        <span class="mat-small">apm</span>
+      </div>
+    </div>
   </div>
-  <div class="mat-headline-5 text">
-    {{ 'SHARED.PROGRESS_INFO.UNAVAILABLE_ETA' | translate }}
-  </div>
-  <div>
-    <span class="mat-headline-5">{{ rps | number : '1.2-2' }}</span>
-    <span class="mat-small">rps</span>
-  </div>
-  <div>
-    <span class="mat-headline-5">{{ aps | number : '1.2-2' }}</span>
-    <span class="mat-small">aps</span>
-  </div>
-  <div>
-    <span class="mat-headline-5">{{ rpm | number : '1.2-2' }}</span>
-    <span class="mat-small">rpm</span>
-  </div>
-  <div>
-    <span class="mat-headline-5">{{ apm | number : '1.2-2' }}</span>
-    <span class="mat-small">apm</span>
-  </div>
-</div>
+</mat-card>

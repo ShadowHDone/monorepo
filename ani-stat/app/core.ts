@@ -145,7 +145,7 @@ export class Core {
               status: 'end',
             });
             const takeTime = Date.now() - whenStart;
-            console.log(`Job "getting animes" is done after ${takeTime}ms `);
+            console.log(`Job "getting animes" done after ${takeTime}ms `);
           },
         });
 

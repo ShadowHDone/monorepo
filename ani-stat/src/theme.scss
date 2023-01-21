@@ -1,6 +1,6 @@
 @use "@angular/material" as mat;
 @include mat.core();
-@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
 
 // Define a dark theme
 $dark-theme: mat.define-dark-theme(
@@ -25,14 +25,19 @@ $light-theme: mat.define-light-theme(
   )
 );
 
-// Apply the dark theme by default
-  @include mat.core-color($dark-theme);
-  @include mat.button-color($dark-theme);
-  @include mat.icon-color($dark-theme);
-  @include mat.list-color($dark-theme);
-  @include mat.sidenav-color($dark-theme);
-  @include mat.toolbar-color($dark-theme);
-  @include mat.card-color($dark-theme);
+// Applying only components that used in project.
+// List of all mixsins is available on github:
+// https://github.com/angular/components/blob/main/src/material/core/theming/_all-theme.scss
+@include mat.core-color($dark-theme);
+@include mat.button-color($dark-theme);
+@include mat.icon-color($dark-theme);
+@include mat.list-color($dark-theme);
+@include mat.sidenav-color($dark-theme);
+@include mat.toolbar-color($dark-theme);
+@include mat.card-color($dark-theme);
+@include mat.tabs-color($dark-theme);
+@include mat.progress-bar-color($dark-theme);
+@include mat.progress-spinner-color($dark-theme);
 
 // Apply the light theme only when the user prefers light themes.
 @media (prefers-color-scheme: light) {
@@ -45,4 +50,7 @@ $light-theme: mat.define-light-theme(
   @include mat.sidenav-color($light-theme);
   @include mat.toolbar-color($light-theme);
   @include mat.card-color($light-theme);
+  @include mat.tabs-color($light-theme);
+  @include mat.progress-bar-color($light-theme);
+  @include mat.progress-spinner-color($light-theme);
 }

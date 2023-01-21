@@ -7,8 +7,8 @@
     "DOWNLOADER": {
       "TITLE": "Загрузчик",
       "TABS": {
-        "SIMPLE": "Общий список аниме",
-        "FULL": "Подробные данные аниме"
+        "SIMPLE": "ОБЩИЙ СПИСОК",
+        "FULL": "ПОДРОБНЫЕ ДАННЫЕ"
       }
     }
   },
@@ -17,7 +17,8 @@
   },
   "SHARED": {
     "PROGRESS_INFO": {
-      "UNAVAILABLE_ETA": "ETA н/д"
+      "UNAVAILABLE_ETA": "ETA н/д",
+      "TOTAL_COUNT": "Всего"
     }
   }
 }

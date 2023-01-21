@@ -8,16 +8,14 @@
 }
 
 .info {
-  margin: auto;
+  margin: 10px auto;
   padding: 0 10px;
   max-width: 700px;
-  min-width: 500px;
 }
 
 .controls {
-  grid-column: 1/-1;
   text-align: center;
   & * {
-    margin: 0 2px;
+    margin: 0 5px;
   }
 }

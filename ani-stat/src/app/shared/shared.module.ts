@@ -11,12 +11,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 const MATERIAL = [
   MatIconModule,
   MatToolbarModule,
   MatButtonModule,
   MatTabsModule,
+  MatCardModule,
+  MatProgressBarModule,
 ];
 
 @NgModule({

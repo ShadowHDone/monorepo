@@ -7,8 +7,8 @@
       "DOWNLOADER": {
         "TITLE": "Downloader",
         "TABS": {
-          "SIMPLE": "Total anime list",
-          "FULL": "Anime details"
+          "SIMPLE": "TOTAL ANIME LIST",
+          "FULL": "ANIME DETAILS"
         }
     }
   },
@@ -17,7 +17,8 @@
   },
   "SHARED": {
     "PROGRESS_INFO": {
-      "UNAVAILABLE_ETA": "ETA is N/A"
+      "UNAVAILABLE_ETA": "ETA is N/A",
+      "TOTAL_COUNT": "Total"
     }
   }
 }

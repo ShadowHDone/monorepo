@@ -44,25 +44,26 @@ export class Mock {
   scope: nock.Scope;
 
   constructor() {
+    const animeSimplePages = 10;
     this.scope = nock('https://shikimori.one')
       .get('/api/animes')
       .reply(200, [ANIME1, ANIME2])
       .get('/api/animes')
 
-      .query((parsedObj) => Number(parsedObj['page']) < 90)
+      .query((parsedObj) => Number(parsedObj['page']) < animeSimplePages)
       .reply(
         200,
         Array(50)
           .fill({})
-          .map((value, index) => (index % 2 ? ANIME1 : ANIME2))
+          .map((value, index) => (index % 2 ? ANIME1 : ANIME2)),
       )
 
       .get('/api/animes')
-      .query((parsedObj) => Number(parsedObj['page']) == 90)
+      .query((parsedObj) => Number(parsedObj['page']) == animeSimplePages)
       .reply(200, [ANIME1, ANIME2])
 
       .get('/api/animes')
-      .query((parsedObj) => Number(parsedObj['page']) > 90)
+      .query((parsedObj) => Number(parsedObj['page']) > animeSimplePages)
       .reply(200, [])
 
       .persist();

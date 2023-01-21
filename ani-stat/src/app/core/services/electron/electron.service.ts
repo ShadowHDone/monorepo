@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 
 // If you import a module but never use any of the imported values other than as TypeScript types,
 // the resulting javascript file will look as if you never imported the module at all.
@@ -16,9 +16,7 @@ import {
 } from '../../../../../app/api/shiki.interface';
 import { AnimeListInfo } from '../../../../../app/interfaces';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ElectronService {
   ipcRenderer: typeof ipcRenderer;
   webFrame: typeof webFrame;
@@ -26,7 +24,7 @@ export class ElectronService {
   fs: typeof fs;
   goGetAnimeInformer$ = new Subject<AnimeListInfo>();
 
-  constructor() {
+  constructor(private zone: NgZone) {
     // Conditional imports
     if (this.isElectron) {
       this.ipcRenderer = window.require('electron').ipcRenderer;
@@ -117,7 +115,9 @@ export class ElectronService {
     this.ipcRenderer.on(
       'shiki-download-anime-list-info',
       (event, animes: AnimeListInfo) => {
-        this.goGetAnimeInformer$.next(animes);
+        this.zone.run(() => {
+          this.goGetAnimeInformer$.next(animes);
+        });
       },
     );
   }

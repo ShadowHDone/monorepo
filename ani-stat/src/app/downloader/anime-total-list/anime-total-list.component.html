@@ -1,12 +1,17 @@
-<app-progress-info
-  [total]="animeCount"
-  [timer$]="timer$"
-  [rps]="rps"
-  [rpm]="rpm"
-  [aps]="aps"
-  [apm]="apm"
-  class="info"
-></app-progress-info>
+<div class="info">
+  <!-- <app-progress-info
+    [total]="animeCount"
+    [started]="started"
+    [stopped]="stopped"
+    [timer$]="timer$"
+    [rps]="rps"
+    [rpm]="rpm"
+    [aps]="aps"
+    [apm]="apm"
+  ></app-progress-info> -->
+</div>
+
+{{ animeCount }}
 
 <div class="controls">
   <button
@@ -15,7 +20,7 @@
     color="primary"
     mat-raised-button
   >
-    {{ (timer$ | async) === 0 ? 'Start update' : 'Complete update' }}
+    {{ (timer$ | async) === 0 ? 'Start update' : 'Continue update' }}
   </button>
   <button
     *ngIf="(timerController$ | async) === 'start'"
