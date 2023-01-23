@@ -16,6 +16,8 @@ import { HomeModule } from './home/home.module';
 import { DownloaderModule } from './downloader/downloader.module';
 
 import { AppComponent } from './app.component';
+import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
+import { APP_CONFIG } from '../environments/environment';
 
 // AoT requires an exported function for factories
 const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader =>
@@ -40,6 +42,7 @@ const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader =>
         deps: [HttpClient],
       },
     }),
+    APP_CONFIG.production ? [] : AkitaNgDevtools.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent],

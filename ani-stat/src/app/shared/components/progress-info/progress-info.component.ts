@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { Observable } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+
+import { ProgressQuery } from '../../../downloader/anime-total-list/progress.query';
+import { Progress } from '../../../downloader/anime-total-list/progress.store';
 
 @Component({
   selector: 'app-progress-info',
@@ -7,7 +17,8 @@ import { Observable } from 'rxjs';
   styleUrls: ['./progress-info.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProgressInfoComponent {
+export class ProgressInfoComponent implements OnChanges {
+  @Input() stateId = '';
   @Input() total = 0;
   @Input() started = 0;
   @Input() stopped = 0;
@@ -17,6 +28,13 @@ export class ProgressInfoComponent {
   @Input() aps = 0;
   @Input() apm = 0;
   @Input() timer$: Observable<number>;
+
+  progressStateId$ = new BehaviorSubject<string>(this.stateId);
+  progressState$: Observable<Progress> = this.progressStateId$.pipe(
+    switchMap((id) => this.progressQuery.selectEntity(id)),
+  );
+
+  constructor(private progressQuery: ProgressQuery) {}
 
   get isGoing(): boolean {
     return this.started && !this.stopped;
@@ -41,4 +59,10 @@ export class ProgressInfoComponent {
   }
 
   getETA(): void {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('stateId' in changes) {
+      this.progressStateId$.next(this.stateId);
+    }
+  }
 }

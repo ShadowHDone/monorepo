@@ -1,5 +1,6 @@
 <div class="info">
-  <!-- <app-progress-info
+  <app-progress-info
+    [stateId]="progressId"
     [total]="animeCount"
     [started]="started"
     [stopped]="stopped"
@@ -8,10 +9,12 @@
     [rpm]="rpm"
     [aps]="aps"
     [apm]="apm"
-  ></app-progress-info> -->
+  ></app-progress-info>
 </div>
 
-{{ animeCount }}
+animeCount: {{ animeCount }} <br />
+storeCount: {{ storeCount }} <br />
+storeCount$: {{ (storeCount$ | async)?.count }} <br />
 
 <div class="controls">
   <button
@@ -37,5 +40,13 @@
     mat-raised-button
   >
     Stop update
+  </button>
+
+  <button (click)="setStore()" mat-raised-button>
+    Store set
+  </button>
+
+  <button (click)="getStore()" mat-raised-button>
+    Store get
   </button>
 </div>

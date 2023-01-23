@@ -4,6 +4,10 @@ import { BehaviorSubject, map, startWith } from 'rxjs';
 import { AnimeSimple } from '../../../../app/api/shiki.interface';
 import { createStopwatch, TimerController } from '../../helpers/stopwatch';
 import { timer } from 'rxjs/internal/observable/timer';
+import { ProgressStore } from './progress.store';
+import { ProgressQuery } from './progress.query';
+
+const ANIME_SIMPLE_PROGRESS_STATE_ID = 'anime-simple-progress-state-id';
 
 @Component({
   selector: 'app-anime-total-list',
@@ -11,6 +15,7 @@ import { timer } from 'rxjs/internal/observable/timer';
   styleUrls: ['./anime-total-list.component.scss'],
 })
 export class AnimeTotalListComponent implements OnInit {
+  readonly progressId = ANIME_SIMPLE_PROGRESS_STATE_ID;
   animeCount = 0;
   rps = 0;
   rpm = 0;
@@ -28,10 +33,15 @@ export class AnimeTotalListComponent implements OnInit {
     map((time) => time * 1000),
   );
 
+  storeCount: number;
+  storeCount$ = this.progressQuery.selectEntity(ANIME_SIMPLE_PROGRESS_STATE_ID);
+
   constructor(
     private electronService: ElectronService,
     private cd: ChangeDetectorRef,
     private zone: NgZone,
+    private progressStore: ProgressStore,
+    private progressQuery: ProgressQuery,
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +52,11 @@ export class AnimeTotalListComponent implements OnInit {
       this.rpm = this.rps * 60;
       this.aps = (animes / takeTime) * 1000;
       this.apm = this.aps * 60;
+
+      this.progressStore.update(ANIME_SIMPLE_PROGRESS_STATE_ID, {
+        count: animes,
+        isLoading: status !== 'end',
+      });
 
       if (status === 'end') {
         this.timerController$.next('stop');
@@ -57,10 +72,26 @@ export class AnimeTotalListComponent implements OnInit {
     // });
   }
 
+  setStore(): void {
+    this.progressStore.upsert(ANIME_SIMPLE_PROGRESS_STATE_ID, {
+      count: 1337 + this.storeCount || 0,
+    });
+  }
+
+  getStore(): void {
+    this.storeCount = this.progressQuery.getEntity(ANIME_SIMPLE_PROGRESS_STATE_ID)?.count;
+  }
+
   downloadAnimes(command: TimerController): void {
     this.timerController$.next(command);
     if (command === 'start') {
       console.log('started');
+
+      this.progressStore.upsert(ANIME_SIMPLE_PROGRESS_STATE_ID, {
+        started: Date.now(),
+        loadingState: true,
+        paused: null,
+      });
 
       this.started = Date.now() - (this.stopped - this.started);
       this.stopped = 0;
@@ -69,6 +100,11 @@ export class AnimeTotalListComponent implements OnInit {
 
     if (command === 'stop') {
       console.log('stopped');
+
+      this.progressStore.update(ANIME_SIMPLE_PROGRESS_STATE_ID, {
+        paused: Date.now(),
+        isLoading: false,
+      });
 
       this.stopped = Date.now();
       this.electronService.downloadAnimes('pause');

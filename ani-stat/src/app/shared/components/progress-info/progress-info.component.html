@@ -1,3 +1,4 @@
+from state: {{ (progressState$ | async)?.count }}
 <mat-card>
   <mat-progress-bar
     *ngIf="!estimatedCount && isGoing"
