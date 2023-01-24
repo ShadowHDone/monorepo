@@ -3,13 +3,18 @@ import {
   Component,
   Input,
   OnChanges,
+  OnInit,
   SimpleChanges,
 } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { startWith, switchMap, filter } from 'rxjs/operators';
 
 import { ProgressQuery } from '../../../downloader/anime-total-list/progress.query';
 import { Progress } from '../../../downloader/anime-total-list/progress.store';
+import {
+  createDynamicStopwatch,
+  TimerDynamicControls,
+} from '../../../helpers/stopwatch';
 
 @Component({
   selector: 'app-progress-info',
@@ -17,7 +22,7 @@ import { Progress } from '../../../downloader/anime-total-list/progress.store';
   styleUrls: ['./progress-info.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProgressInfoComponent implements OnChanges {
+export class ProgressInfoComponent implements OnInit, OnChanges {
   @Input() stateId = '';
   @Input() total = 0;
   @Input() started = 0;
@@ -27,12 +32,18 @@ export class ProgressInfoComponent implements OnChanges {
   @Input() rpm = 0;
   @Input() aps = 0;
   @Input() apm = 0;
-  @Input() timer$: Observable<number>;
+  @Input() refreshInterval = 500;
 
   progressStateId$ = new BehaviorSubject<string>(this.stateId);
   progressState$: Observable<Progress> = this.progressStateId$.pipe(
     switchMap((id) => this.progressQuery.selectEntity(id)),
   );
+
+  timerController$ = new BehaviorSubject<TimerDynamicControls>([
+    'stop',
+    this.refreshInterval,
+  ]);
+  timer$ = createDynamicStopwatch(this.timerController$).pipe(startWith(0));
 
   constructor(private progressQuery: ProgressQuery) {}
 
@@ -44,24 +55,52 @@ export class ProgressInfoComponent implements OnChanges {
     return Boolean(this.started && this.stopped);
   }
 
-  get timePassed(): number {
-
-    if (!this.started) {
+  timePassed({ started, paused }: Progress): number {
+    if (!started) {
       return 0;
     }
 
-    if (!this.stopped) {
-      return Date.now() - this.started;
+    if (!paused) {
+      return Date.now() - started;
     }
 
-    return this.stopped - this.started;
+    return paused - started;
   }
 
-  getETA(): void {}
+  ngOnInit(): void {
+    this.progressState$.pipe(filter(Boolean)).subscribe(({ isLoading }) => {
+      this.timerController$.next([
+        isLoading ? 'start' : 'stop',
+        this.refreshInterval,
+      ]);
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('stateId' in changes) {
       this.progressStateId$.next(this.stateId);
     }
+
+    if ('refreshInterval' in changes) {
+      const timerControllerValue = this.timerController$.getValue();
+      const timerCommand =
+        typeof timerControllerValue === 'object'
+          ? timerControllerValue[0]
+          : timerControllerValue;
+      if (timerCommand === 'start') {
+        this.timerController$.next(['start', this.refreshInterval]);
+      }
+    }
+  }
+
+  countETA(progress: Progress): number {
+    const { count, estimateCount } = progress;
+    if (!estimateCount) {
+      return 0;
+    }
+
+    const percent = 1 - count / estimateCount;
+
+    return this.timePassed(progress) * percent;
   }
 }

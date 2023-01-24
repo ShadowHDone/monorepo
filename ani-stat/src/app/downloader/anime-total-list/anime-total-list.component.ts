@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { ElectronService } from '../../core/services';
 import { BehaviorSubject, map, startWith } from 'rxjs';
 import { AnimeSimple } from '../../../../app/api/shiki.interface';
-import { createStopwatch, TimerController } from '../../helpers/stopwatch';
+import { createStopwatch, TimerControls } from '../../helpers/stopwatch';
 import { timer } from 'rxjs/internal/observable/timer';
 import { ProgressStore } from './progress.store';
 import { ProgressQuery } from './progress.query';
@@ -25,12 +25,6 @@ export class AnimeTotalListComponent implements OnInit {
   stopped = 0;
   goGetAnimeInformer$ = this.electronService.goGetAnimeInformer$.pipe(
     map((value) => this.zone.run(() => value)),
-  );
-
-  timerController$ = new BehaviorSubject<TimerController>('stop');
-  timer$ = createStopwatch(this.timerController$).pipe(
-    startWith(0),
-    map((time) => time * 1000),
   );
 
   storeCount: number;
@@ -60,10 +54,6 @@ export class AnimeTotalListComponent implements OnInit {
         count: animes,
         isLoading: status !== 'end',
       });
-
-      if (status === 'end') {
-        this.timerController$.next('stop');
-      }
     });
 
     // this.timer$.subscribe(() => {
@@ -75,8 +65,7 @@ export class AnimeTotalListComponent implements OnInit {
     // });
   }
 
-  downloadAnimes(command: TimerController): void {
-    this.timerController$.next(command);
+  downloadAnimes(command: TimerControls): void {
     if (command === 'start') {
       console.log('started');
 
@@ -84,6 +73,7 @@ export class AnimeTotalListComponent implements OnInit {
         started: Date.now(),
         loadingState: true,
         paused: null,
+        estimateCount: 502,
       });
 
       this.started = Date.now() - (this.stopped - this.started);

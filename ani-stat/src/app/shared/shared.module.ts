@@ -16,6 +16,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { LetModule } from '@rx-angular/template/let';
 import { ForModule } from '@rx-angular/template/for';
+import { IfModule } from '@rx-angular/template/if';
 import { PushModule } from '@rx-angular/template/push';
 import { UnpatchModule } from '@rx-angular/template/unpatch';
 
@@ -28,7 +29,7 @@ const MATERIAL = [
   MatProgressBarModule,
 ];
 
-const RX_ANGULAR = [ForModule, LetModule, PushModule, UnpatchModule];
+const RX_ANGULAR = [ForModule, LetModule, IfModule, PushModule, UnpatchModule];
 
 @NgModule({
   declarations: [PageNotFoundComponent, WebviewDirective],

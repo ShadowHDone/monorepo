@@ -18,7 +18,9 @@
   "SHARED": {
     "PROGRESS_INFO": {
       "UNAVAILABLE_ETA": "ETA н/д",
-      "TOTAL_COUNT": "Всего"
+      "COMPLETE": "Выполнено",
+      "TOTAL_COUNT": "Всего",
+      "EMPTY_STATE": "Ожидаю начала операции…"
     }
   }
 }

@@ -44,7 +44,7 @@ export class Mock {
   scope: nock.Scope;
 
   constructor() {
-    const animeSimplePages = 90;
+    const animeSimplePages = 10;
     this.scope = nock('https://shikimori.one')
       .get('/api/animes')
       .reply(200, [ANIME1, ANIME2])

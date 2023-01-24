@@ -1,11 +1,11 @@
-<mat-card *rxLet="progressState$; let progress">
+<mat-card *rxIf="progressState$; let progress; else: empty">
   <mat-progress-bar
-    *ngIf="!progress?.estimateCount && progress?.isLoading"
+    *ngIf="!progress.estimateCount && progress.isLoading"
     mode="indeterminate"
   ></mat-progress-bar>
   <mat-progress-bar
-    *ngIf="progress?.estimateCount && (progress?.isLoading || progress?.paused)"
-    [value]="progress.count / progress.estimateCount * 100"
+    *ngIf="progress.estimateCount && (progress.isLoading || progress.paused)"
+    [value]="(progress.count / progress.estimateCount) * 100"
     mode="determinate"
   ></mat-progress-bar>
 
@@ -14,14 +14,21 @@
       <div class="mat-headline-5 text">
         {{ 'SHARED.PROGRESS_INFO.TOTAL_COUNT' | translate }}
       </div>
-      <div class="mat-headline-2 text">{{ progress?.count || 0 | number }}</div>
+      <div class="mat-headline-2 text">{{ progress.count || 0 | number }}</div>
     </div>
-    <div class="grid">
+    <div *rxLet="timer$" class="grid">
       <div class="mat-headline-5 text">
-        {{ timePassed | date : 'H:mm:ss' : '+0000' }}
+        {{ timePassed(progress) | date : 'H:mm:ss' : '+0000' }}
       </div>
-      <div class="mat-headline-5 text">
+      <div *ngIf="!progress.estimateCount" class="mat-headline-5 text">
         {{ 'SHARED.PROGRESS_INFO.UNAVAILABLE_ETA' | translate }}
+      </div>
+      <div *ngIf="progress.estimateCount" class="mat-headline-5 text">
+        <ng-container
+          *ngIf="progress.count < progress.estimateCount; else complete"
+        >
+          -{{ countETA(progress) | date : 'H:mm:ss' : '+0000' }}
+        </ng-container>
       </div>
       <div>
         <span class="mat-headline-5">{{ rps | number : '1.2-2' }}</span>
@@ -42,3 +49,13 @@
     </div>
   </div>
 </mat-card>
+
+<ng-template #empty>
+  <mat-card class="empty">
+    {{ 'SHARED.PROGRESS_INFO.EMPTY_STATE' | translate }}
+  </mat-card>
+</ng-template>
+
+<ng-template #complete>
+  {{ 'SHARED.PROGRESS_INFO.COMPLETE' | translate }}
+</ng-template>

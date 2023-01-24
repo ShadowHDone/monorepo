@@ -19,6 +19,11 @@
   margin: 0;
 }
 
+.empty {
+  padding: 15px;
+  text-align: center;
+}
+
 @media (max-width: 500px) {
   .grid--container {
     grid-template-columns: 1fr;

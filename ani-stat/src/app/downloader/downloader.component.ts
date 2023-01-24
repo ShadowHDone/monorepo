@@ -7,7 +7,7 @@ import {
 import { BehaviorSubject, catchError, of, map, startWith } from 'rxjs';
 import { AnimeSimple } from '../../../app/api/shiki.interface';
 import { ElectronService } from '../core/services';
-import { TimerController, createStopwatch } from '../helpers/stopwatch';
+import { TimerControls, createStopwatch } from '../helpers/stopwatch';
 
 @Component({
   selector: 'app-downloader',

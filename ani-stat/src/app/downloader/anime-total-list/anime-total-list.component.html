@@ -3,7 +3,6 @@
   [total]="animeCount"
   [started]="started"
   [stopped]="stopped"
-  [timer$]="timer$"
   [rps]="rps"
   [rpm]="rpm"
   [aps]="aps"
@@ -13,15 +12,13 @@
 
 <div class="controls">
   <button
-    *ngIf="(timerController$ | async) === 'stop'"
     (click)="downloadAnimes('start')"
     color="primary"
     mat-raised-button
   >
-    {{ (timer$ | async) === 0 ? 'Start update' : 'Continue update' }}
+    Start update
   </button>
   <button
-    *ngIf="(timerController$ | async) === 'start'"
     (click)="downloadAnimes('stop')"
     color="primary"
     mat-raised-button
@@ -29,7 +26,6 @@
     Pause update
   </button>
   <button
-    *ngIf="(timerController$ | async) === 'start'"
     (click)="downloadAnimes('stop')"
     color="primary"
     mat-raised-button

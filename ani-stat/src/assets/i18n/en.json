@@ -18,7 +18,9 @@
   "SHARED": {
     "PROGRESS_INFO": {
       "UNAVAILABLE_ETA": "ETA is N/A",
-      "TOTAL_COUNT": "Total"
+      "COMPLETE": "Completed",
+      "TOTAL_COUNT": "Total",
+      "EMPTY_STATE": "Waiting…"
     }
   }
 }
