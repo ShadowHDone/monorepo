@@ -42,6 +42,8 @@
     "@angular/platform-browser-dynamic": "15.0.4",
     "@angular/router": "15.0.4",
     "@datorama/akita": "7.1.1",
+    "@rx-angular/cdk": "latest",
+    "@rx-angular/template": "1.0.0-rc.5",
     "@types/lodash": "4.14.191",
     "axios": "1.2.2",
     "electron-store": "8.1.0",

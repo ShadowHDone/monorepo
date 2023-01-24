@@ -48,10 +48,13 @@ export class AnimeTotalListComponent implements OnInit {
     this.goGetAnimeInformer$.subscribe(({ requests, animes, status }) => {
       const takeTime = Date.now() - this.started;
       this.animeCount = animes;
-      this.rps = (requests / takeTime) * 1000;
-      this.rpm = this.rps * 60;
-      this.aps = (animes / takeTime) * 1000;
-      this.apm = this.aps * 60;
+
+      if (status !== 'end') {
+        this.rps = (requests / takeTime) * 1000;
+        this.rpm = this.rps * 60;
+        this.aps = (animes / takeTime) * 1000;
+        this.apm = this.aps * 60;
+      }
 
       this.progressStore.update(ANIME_SIMPLE_PROGRESS_STATE_ID, {
         count: animes,
@@ -70,16 +73,6 @@ export class AnimeTotalListComponent implements OnInit {
     //   this.cd.markForCheck();
     //   this.cd.detectChanges();
     // });
-  }
-
-  setStore(): void {
-    this.progressStore.upsert(ANIME_SIMPLE_PROGRESS_STATE_ID, {
-      count: 1337 + this.storeCount || 0,
-    });
-  }
-
-  getStore(): void {
-    this.storeCount = this.progressQuery.getEntity(ANIME_SIMPLE_PROGRESS_STATE_ID)?.count;
   }
 
   downloadAnimes(command: TimerController): void {

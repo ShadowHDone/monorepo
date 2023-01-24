@@ -45,7 +45,6 @@ export class ProgressInfoComponent implements OnChanges {
   }
 
   get timePassed(): number {
-    console.log('timePassed');
 
     if (!this.started) {
       return 0;
