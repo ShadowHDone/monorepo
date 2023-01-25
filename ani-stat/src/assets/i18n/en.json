@@ -1,15 +1,25 @@
 {
   "PAGES": {
-      "HOME": {
-          "TITLE": "AniStat app",
-          "GO_TO_DOWNLOADER": "Go to Downloader"
+    "HOME": {
+      "TITLE": "AniStat app",
+      "GO_TO_DOWNLOADER": "Go to Downloader"
+    },
+    "DOWNLOADER": {
+      "TITLE": "Downloader",
+      "TABS": {
+        "SIMPLE": "TOTAL ANIME LIST",
+        "FULL": "ANIME DETAILS"
       },
-      "DOWNLOADER": {
-        "TITLE": "Downloader",
-        "TABS": {
-          "SIMPLE": "TOTAL ANIME LIST",
-          "FULL": "ANIME DETAILS"
-        }
+      "PROGRESS": {
+        "RPS": "rps",
+        "RPS_DESC": "Requests per second",
+        "RPM": "rpm",
+        "RPM_DESC": "Requests per minute",
+        "APS": "aps",
+        "APS_DESC": "Anime per second",
+        "APM": "aps",
+        "APM_DESC": "Anime per minute"
+      }
     }
   },
   "HEADER": {

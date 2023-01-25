@@ -5,7 +5,7 @@ export interface Progress {
   count: number;
   isLoading: boolean;
   started?: number;
-  paused?: number;
+  ended?: number;
   estimateCount?: number;
 }
 

@@ -16,6 +16,12 @@ import {
   TimerDynamicControls,
 } from '../../../helpers/stopwatch';
 
+export type ProgressCustomMeasure = {
+  name: string;
+  description?: string;
+  exec: (progress: Progress) => number;
+};
+
 @Component({
   selector: 'app-progress-info',
   templateUrl: './progress-info.component.html',
@@ -24,14 +30,7 @@ import {
 })
 export class ProgressInfoComponent implements OnInit, OnChanges {
   @Input() stateId = '';
-  @Input() total = 0;
-  @Input() started = 0;
-  @Input() stopped = 0;
-  @Input() estimatedCount;
-  @Input() rps = 0;
-  @Input() rpm = 0;
-  @Input() aps = 0;
-  @Input() apm = 0;
+  @Input() customMeasures: ProgressCustomMeasure[];
   @Input() refreshInterval = 500;
 
   progressStateId$ = new BehaviorSubject<string>(this.stateId);
@@ -46,26 +45,6 @@ export class ProgressInfoComponent implements OnInit, OnChanges {
   timer$ = createDynamicStopwatch(this.timerController$).pipe(startWith(0));
 
   constructor(private progressQuery: ProgressQuery) {}
-
-  get isGoing(): boolean {
-    return this.started && !this.stopped;
-  }
-
-  get isPaused(): boolean {
-    return Boolean(this.started && this.stopped);
-  }
-
-  timePassed({ started, paused }: Progress): number {
-    if (!started) {
-      return 0;
-    }
-
-    if (!paused) {
-      return Date.now() - started;
-    }
-
-    return paused - started;
-  }
 
   ngOnInit(): void {
     this.progressState$.pipe(filter(Boolean)).subscribe(({ isLoading }) => {
@@ -91,6 +70,18 @@ export class ProgressInfoComponent implements OnInit, OnChanges {
         this.timerController$.next(['start', this.refreshInterval]);
       }
     }
+  }
+
+  timePassed({ started, ended }: Progress): number {
+    if (!started) {
+      return 0;
+    }
+
+    if (!ended) {
+      return Date.now() - started;
+    }
+
+    return ended - started;
   }
 
   countETA(progress: Progress): number {

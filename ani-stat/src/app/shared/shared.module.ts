@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { LetModule } from '@rx-angular/template/let';
 import { ForModule } from '@rx-angular/template/for';
@@ -27,6 +28,7 @@ const MATERIAL = [
   MatTabsModule,
   MatCardModule,
   MatProgressBarModule,
+  MatTooltipModule,
 ];
 
 const RX_ANGULAR = [ForModule, LetModule, IfModule, PushModule, UnpatchModule];
