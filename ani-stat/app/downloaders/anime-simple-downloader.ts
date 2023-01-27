@@ -85,8 +85,8 @@ export class AnimeSimpleDownloader implements Downloader {
           );
 
           sendDownloadAnimeListInfo({
-            requests: page,
-            animes: animesCount,
+            request: page,
+            response: animes,
             status: animesCount < pageLimit ? 'warn' : undefined,
           });
 
@@ -94,8 +94,6 @@ export class AnimeSimpleDownloader implements Downloader {
         },
         complete: () => {
           sendDownloadAnimeListInfo({
-            requests: 0,
-            animes: animesCount,
             status: 'end',
           });
           const takeTime = Date.now() - whenStart;

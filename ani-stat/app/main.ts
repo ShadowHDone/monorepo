@@ -3,8 +3,9 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as Store from 'electron-store';
 import { Core } from './core';
-import { AnimeListInfo, UserConfig } from './interfaces';
+import { RequestInfo, UserConfig } from './interfaces';
 import { AnimeSimpleDownloader } from './downloaders/anime-simple-downloader';
+import { AnimeSimple } from './api/shiki.interface';
 
 const userConfigStore = new Store<UserConfig>({ defaults: { login: {} } });
 const core = new Core(userConfigStore);
@@ -114,6 +115,8 @@ ipcMain.on('downloader/anime/shiki/stop', (event, last?: number) => {
   animeSimpleDownloader.end(last);
 });
 
-export function sendDownloadAnimeListInfo(animeListInfo: AnimeListInfo): void {
+export function sendDownloadAnimeListInfo(
+  animeListInfo: RequestInfo<number, AnimeSimple[]>,
+): void {
   win.webContents.send('downloader/anime/shiki/info', animeListInfo);
 }

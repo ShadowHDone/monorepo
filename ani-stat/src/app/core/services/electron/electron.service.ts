@@ -14,7 +14,7 @@ import {
   AnimeSimple,
   UserBrief,
 } from '../../../../../app/api/shiki.interface';
-import { AnimeListInfo } from '../../../../../app/interfaces';
+import { RequestInfo } from '../../../../../app/interfaces';
 
 @Injectable()
 export class ElectronService {
@@ -22,7 +22,7 @@ export class ElectronService {
   webFrame: typeof webFrame;
   childProcess: typeof childProcess;
   fs: typeof fs;
-  goGetAnimeInformer$ = new Subject<AnimeListInfo>();
+  downloaderAnimeShikiInfo$ = new Subject<RequestInfo<number, AnimeSimple[]>>();
 
   constructor(private zone: NgZone) {
     // Conditional imports
@@ -118,9 +118,9 @@ export class ElectronService {
   subscribes(): void {
     this.ipcRenderer.on(
       'downloader/anime/shiki/info',
-      (event, animes: AnimeListInfo) => {
+      (event, animes: RequestInfo<number, AnimeSimple[]>) => {
         this.zone.run(() => {
-          this.goGetAnimeInformer$.next(animes);
+          this.downloaderAnimeShikiInfo$.next(animes);
         });
       },
     );

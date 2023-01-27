@@ -4,8 +4,9 @@
   class="info"
 ></app-progress-info>
 
-<div class="controls">
+<div *rxLet="storeProgress$; let progress" class="controls">
   <button
+    *ngIf="!progress || !progress.started"
     (click)="downloadAnime()"
     color="primary"
     mat-raised-button
@@ -13,6 +14,28 @@
     Start update
   </button>
   <button
+    *ngIf="progress && progress.ended"
+    (click)="downloadAnime()"
+    color="primary"
+    mat-raised-button
+  >
+    Restart update
+  </button>
+  <button
+    *ngIf="
+      progress &&
+      progress.ended &&
+      progress.estimate &&
+      progress.current < progress.estimate
+    "
+    (click)="downloadAnime(progress.current)"
+    color="primary"
+    mat-raised-button
+  >
+    Continue update (from {{ progress.current }})
+  </button>
+  <button
+    *ngIf="progress && progress.started && !progress.ended"
     (click)="stopDownloadingAnime()"
     color="primary"
     mat-raised-button

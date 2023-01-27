@@ -16,12 +16,9 @@ export interface AppConfig {
   scope?: string;
 }
 
-export interface RequestsInfo {
-  requests: number;
+export interface RequestInfo<T = any, D = any> {
+  request?: T;
+  response?: D;
   status?: 'warn' | 'error' | 'end';
   error?: Error;
-}
-
-export interface AnimeListInfo extends RequestsInfo {
-  animes: number;
 }
