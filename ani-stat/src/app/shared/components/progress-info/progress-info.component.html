@@ -1,11 +1,11 @@
 <mat-card *rxIf="progressState$; let progress; else: empty">
   <mat-progress-bar
-    *ngIf="!progress.estimateCount && !progress.ended"
+    *ngIf="!progress.estimate && !progress.ended"
     mode="indeterminate"
   ></mat-progress-bar>
   <mat-progress-bar
-    *ngIf="progress.estimateCount && progress.isLoading"
-    [value]="(progress.count / progress.estimateCount) * 100"
+    *ngIf="progress.estimate && progress.isLoading"
+    [value]="(progress.current / progress.estimate) * 100"
     mode="determinate"
   ></mat-progress-bar>
 
@@ -14,18 +14,23 @@
       <div class="mat-headline-5 text">
         {{ 'SHARED.PROGRESS_INFO.TOTAL_COUNT' | translate }}
       </div>
-      <div class="mat-headline-2 text">{{ progress.count || 0 | number }}</div>
+      <div class="mat-headline-2 text">
+        {{ progress.current || 0 | number }}
+      </div>
     </div>
     <div *rxLet="timer$" class="grid">
       <div class="mat-headline-5 text">
         {{ timePassed(progress) | date : 'H:mm:ss' : '+0000' }}
       </div>
-      <div *ngIf="!progress.estimateCount" class="mat-headline-5 text">
+      <div *ngIf="!progress.estimate" class="mat-headline-5 text">
         {{ 'SHARED.PROGRESS_INFO.UNAVAILABLE_ETA' | translate }}
       </div>
-      <div *ngIf="progress.estimateCount" class="mat-headline-5 text">
+      <div *ngIf="progress.estimate" class="mat-headline-5 text">
         <ng-container
-          *ngIf="progress.count < progress.estimateCount; else complete"
+          *ngIf="
+            progress.current < progress.estimate;
+            else complete
+          "
         >
           -{{ countETA(progress) | date : 'H:mm:ss' : '+0000' }}
         </ng-container>

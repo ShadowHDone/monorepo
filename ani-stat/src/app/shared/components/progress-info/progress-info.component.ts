@@ -9,8 +9,8 @@ import {
 import { Observable, BehaviorSubject } from 'rxjs';
 import { startWith, switchMap, filter } from 'rxjs/operators';
 
-import { ProgressQuery } from '../../../downloader/anime-total-list/progress.query';
-import { Progress } from '../../../downloader/anime-total-list/progress.store';
+import { ProgressQuery } from './progress.query';
+import { Progress } from './progress.store';
 import {
   createDynamicStopwatch,
   TimerDynamicControls,
@@ -85,12 +85,13 @@ export class ProgressInfoComponent implements OnInit, OnChanges {
   }
 
   countETA(progress: Progress): number {
-    const { count, estimateCount } = progress;
-    if (!estimateCount) {
+    const { estimate, current } = progress;
+
+    if (!estimate) {
       return 0;
     }
 
-    const percent = 1 - count / estimateCount;
+    const percent = 1 - current / estimate;
 
     return this.timePassed(progress) * percent;
   }

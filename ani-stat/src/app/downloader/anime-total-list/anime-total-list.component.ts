@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ElectronService } from '../../core/services';
 import { map } from 'rxjs';
 import { TimerControls } from '../../helpers/stopwatch';
-import { ProgressStore } from './progress.store';
-import { ProgressQuery } from './progress.query';
+import { ProgressStore } from '../../shared/components/progress-info/progress.store';
+import { ProgressQuery } from '../../shared/components/progress-info/progress.query';
 import { ProgressCustomMeasure } from '../../shared/components/progress-info/progress-info.component';
 
 const ANIME_SIMPLE_PROGRESS_STATE_ID = 'anime-simple-progress-state-id';
@@ -22,7 +22,10 @@ export class AnimeTotalListComponent implements OnInit {
       exec: (progress) => {
         const takeTime = (progress.ended || Date.now()) - progress.started;
         const animesInRequest = 50;
-        return (progress.count / animesInRequest / takeTime) * 1000;
+        return (
+          ((progress.current - progress.initial) / animesInRequest / takeTime) *
+          1000
+        );
       },
     },
     {
@@ -30,7 +33,7 @@ export class AnimeTotalListComponent implements OnInit {
       description: 'PAGES.DOWNLOADER.PROGRESS.APS_DESC',
       exec: (progress) => {
         const takeTime = (progress.ended || Date.now()) - progress.started;
-        return (progress.count / takeTime) * 1000;
+        return ((progress.current - progress.initial) / takeTime) * 1000;
       },
     },
     {
@@ -39,7 +42,11 @@ export class AnimeTotalListComponent implements OnInit {
       exec: (progress) => {
         const takeTime = (progress.ended || Date.now()) - progress.started;
         const animesInRequest = 50;
-        return (progress.count / animesInRequest / takeTime) * 1000 * 60;
+        return (
+          ((progress.current - progress.initial) / animesInRequest / takeTime) *
+          1000 *
+          60
+        );
       },
     },
     {
@@ -47,7 +54,7 @@ export class AnimeTotalListComponent implements OnInit {
       description: 'PAGES.DOWNLOADER.PROGRESS.APM_DESC',
       exec: (progress) => {
         const takeTime = (progress.ended || Date.now()) - progress.started;
-        return (progress.count / takeTime) * 1000 * 60;
+        return ((progress.current - progress.initial) / takeTime) * 1000 * 60;
       },
     },
   ];
@@ -63,39 +70,32 @@ export class AnimeTotalListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.goGetAnimeInformer$.subscribe(({ requests, animes: count, status }) => {
+    this.goGetAnimeInformer$.subscribe(({ requests, animes, status }) => {
       const ended = status === 'end' ? Date.now() : undefined;
+
+      console.log('info,', status);
+
       this.progressStore.update(ANIME_SIMPLE_PROGRESS_STATE_ID, {
-        count,
+        current: animes,
         ended,
         isLoading: status !== 'end',
       });
     });
   }
 
-  downloadAnimes(command: TimerControls): void {
-    if (command === 'start') {
-      console.log('started');
+  downloadAnime(start: number = 0): void {
+    this.progressStore.upsert(ANIME_SIMPLE_PROGRESS_STATE_ID, {
+      started: Date.now(),
+      isLoading: true,
+      initial: start,
+      current: start,
+      estimate: 4502,
+    });
 
-      this.progressStore.upsert(ANIME_SIMPLE_PROGRESS_STATE_ID, {
-        started: Date.now(),
-        loadingState: true,
-        paused: null,
-        estimateCount: 4502,
-      });
+    this.electronService.downloadAnime(start);
+  }
 
-      this.electronService.downloadAnimes('start');
-    }
-
-    if (command === 'stop') {
-      console.log('stopped');
-
-      this.progressStore.update(ANIME_SIMPLE_PROGRESS_STATE_ID, {
-        ended: Date.now(),
-        isLoading: false,
-      });
-
-      this.electronService.downloadAnimes('pause');
-    }
+  stopDownloadingAnime(): void {
+    this.electronService.stopDownloadingAnime();
   }
 }

@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as Store from 'electron-store';
 import { Core } from './core';
 import { AnimeListInfo, UserConfig } from './interfaces';
-import { AnimeSimple } from './api/shiki.interface';
+import { AnimeSimpleDownloader } from './downloaders/anime-simple-downloader';
 
 const userConfigStore = new Store<UserConfig>({ defaults: { login: {} } });
 const core = new Core(userConfigStore);
@@ -97,17 +97,23 @@ ipcMain.handle('shiki-get-whoami', async () => {
   return await core.getWhoAmI().toPromise();
 });
 
+const animeSimpleDownloader = new AnimeSimpleDownloader(core.appConfig);
+
 ipcMain.handle('shiki-get-animes', async (event, response) => {
-  return await core.getAnimeList(response).toPromise();
+  return await animeSimpleDownloader.getAnimeList(response).toPromise();
 });
 
 ipcMain.on(
-  'shiki-download-anime-list',
-  (event, command: 'start' | 'pause' | 'continue') => {
-    core.downloadAnimeList(command);
+  'downloader/anime/shiki/start',
+  (event, first?: number, last?: number) => {
+    animeSimpleDownloader.run(first, last);
   },
 );
 
+ipcMain.on('downloader/anime/shiki/stop', (event, last?: number) => {
+  animeSimpleDownloader.end(last);
+});
+
 export function sendDownloadAnimeListInfo(animeListInfo: AnimeListInfo): void {
-  win.webContents.send('shiki-download-anime-list-info', animeListInfo);
+  win.webContents.send('downloader/anime/shiki/info', animeListInfo);
 }

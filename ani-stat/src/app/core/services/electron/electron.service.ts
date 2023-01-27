@@ -107,13 +107,17 @@ export class ElectronService {
     );
   }
 
-  downloadAnimes(command: 'start' | 'pause' | 'continue'): void {
-    this.ipcRenderer.send('shiki-download-anime-list', command);
+  downloadAnime(first?: number, last?: number): void {
+    this.ipcRenderer.send('downloader/anime/shiki/start', first, last);
+  }
+
+  stopDownloadingAnime(last?: number) {
+    this.ipcRenderer.send('downloader/anime/shiki/stop', last);
   }
 
   subscribes(): void {
     this.ipcRenderer.on(
-      'shiki-download-anime-list-info',
+      'downloader/anime/shiki/info',
       (event, animes: AnimeListInfo) => {
         this.zone.run(() => {
           this.goGetAnimeInformer$.next(animes);

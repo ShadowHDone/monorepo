@@ -16,23 +16,15 @@ import {
   catchError,
   of,
   switchMap,
-  take,
-  takeWhile,
-  combineLatest,
-  BehaviorSubject,
 } from 'rxjs';
 import { Mock } from './mock';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { Shiki } from './api/shiki';
-import { AnimeRequest, AnimeSimple, UserBrief } from './api/shiki.interface';
-import { sendDownloadAnimeListInfo } from './main';
+import { UserBrief } from './api/shiki.interface';
 
 export class Core {
   mock: Mock;
 
-  private animeList: AnimeSimple[] = [];
-  private downloader$: BehaviorSubject<number>;
-  private downloadPause = false;
   private _appConfig: AppConfig;
 
   /**
@@ -59,20 +51,6 @@ export class Core {
     return raw ? JSON.parse(raw) : {};
   }
 
-  getAnimeList(request?: AnimeRequest): Observable<AnimeSimple[]> {
-    return from(
-      Shiki.animes(request, { userAgent: this.appConfig.user_agent }),
-    ).pipe(
-      tap((list) => {
-        console.log('getAnimeList', list);
-      }),
-      catchError((error) => {
-        console.error(error);
-        return [];
-      }),
-    );
-  }
-
   /**
    * @todo make auth
    * @returns
@@ -95,78 +73,8 @@ export class Core {
     );
   }
 
-  downloadAnimeList(command: 'start' | 'pause' | 'continue'): void {
-    if (command === 'pause') {
-      this.downloadPause = true;
-      return;
-    }
-
-    this.downloadPause = false;
-
-    if (command === 'start') {
-      if (this.downloader$) this.downloader$.complete();
-
-      const pageLimit = 50;
-      const whenStart = Date.now();
-      let animesCount = 0;
-      this.downloader$ = new BehaviorSubject(0);
-      this.downloader$
-        .pipe(
-          switchMap((page) => {
-            return combineLatest([
-              of(page),
-              Shiki.animes({ page, limit: pageLimit, order: 'id' }),
-            ]);
-          }),
-          takeWhile(([, animes]) => Boolean(animes.length)),
-        )
-        .subscribe({
-          next: ([page, animes]) => {
-            this.saveAnimeList(animes);
-            animesCount += animes.length;
-            const takeTime = Date.now() - whenStart;
-            console.log(
-              `${page} page, got ${animesCount} animes (${
-                Math.floor((page / takeTime) * 1000 * 60 * 100) / 100
-              }rpm)`,
-            );
-            sendDownloadAnimeListInfo({
-              requests: page,
-              animes: animesCount,
-              status: animesCount < pageLimit ? 'warn' : undefined,
-            });
-            if (this.downloadPause) return;
-            this.downloader$.next(page + 1);
-          },
-          complete: () => {
-            sendDownloadAnimeListInfo({
-              requests: 0,
-              animes: animesCount,
-              status: 'end',
-            });
-            const takeTime = Date.now() - whenStart;
-            console.log(`Job "getting animes" done after ${takeTime}ms `);
-          },
-        });
-
-      return;
-    }
-
-    if (
-      command === 'continue' &&
-      this.downloader$ &&
-      !this.downloader$.closed
-    ) {
-      this.downloader$.next(this.downloader$.getValue() + 1);
-    }
-  }
-
-  private saveAnimeList(animes: AnimeSimple[]): void {
-    this.animeList = this.animeList.concat(animes);
-  }
-
   /**
-   * @todo move to static helper
+   * @todo move to static shiki api
    * @todo make separate error handlers
    * @param error
    * @returns
